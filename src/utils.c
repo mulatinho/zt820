@@ -10,7 +10,7 @@ int zt_interpret(zt_info *ztinfo, char *string)
 	char *q;
 
 	if (strstr(string, "PING :")) {
-		fprintf(stdout, ":. server is pinging me, pong him back\n");
+		fprintf(stdout, "%s\n:. server is pinging me, pong him back\n", string);
 		q = (char*)mlt_strkey(string, 1, ' ');
 		snprintf(buf, sizeof(buf)-1, "PONG %s\r\n", q);
 

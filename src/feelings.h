@@ -11,6 +11,8 @@ typedef enum {
 	ZT_FRIENDLY   = 16
 } zt_feelings_type;
 
+
+enum { NORMAL, HAPPY, AGGRESSIVE, SAD, FRIENDLY, FEELINGS_SZ };
 static char *zt_feelings_desc[] = { 
 	"normal", "happy", "aggressive", "sad", "friendly"
 };
@@ -28,7 +30,8 @@ typedef struct
 
 
 int zt_feeling_of_day(void);
-int zt_feelings_check(void);
+int zt_feelings_event(zt_info *, char *);
+int zt_feelings_check(zt_info *, int);
 int zt_check_for_changes(void);
 int zt_if_join(zt_feelings *);
 int zt_if_query(void);

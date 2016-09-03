@@ -80,5 +80,5 @@ char *mlt_strkey(char *buffer, int who, char del);
 void mlt_strupper(char *buffer);
 
 int zt_interpret(zt_info *, char *);
-int zt_feelings_check(void);
+int zt_feelings_event(zt_info *, char *);
 #endif

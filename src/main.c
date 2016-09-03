@@ -103,7 +103,7 @@ int zt_read_conf(zt_info *ztinfo)
 
 int zt_event_loop(zt_info *ztinfo, char *buffer)
 {
-	zt_feelings_check();
+	zt_feelings_event(ztinfo, buffer);
 	zt_interpret(ztinfo, buffer);
 
 	return 0;
