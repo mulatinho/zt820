@@ -25,23 +25,25 @@ int zt_feelings_wannatalk(int probability)
 {
 	int randnum = zt_feelings_randnum();
 
-	if (randnum > probability) {
-		fprintf(stdout, ":. i wanna talk!\n");
+	if (randnum > probability) 
 		return 0;
-	}
 
 	return 1;
 }
 
 int zt_feelings_talk(zt_info *ztinfo)
 {
-	char *happy_talk[] = { "woohoo!!", "yeah _\\,,/", "playing poker... :D" };
+	char *happy_talk[] = { 
+		"woohoo!!", "yeah _\\,,/", "playing poker... :D",
+		"getting email", "are you sure?", "please, don't do that."
+       	};
 	int happy_talk_sz = sizeof(happy_talk) / sizeof(happy_talk[0]);
 
 	int choice = rand() % happy_talk_sz;
 
 	char buf[BUF_MED];
 
+	fprintf(stdout, ":. i wanna talk! -> '%s'\n", happy_talk[choice]);
 	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\n", ztinfo->ircserver.channels[0], happy_talk[choice]);
 	write(ztinfo->socket, buf, strlen(buf));
 
@@ -75,10 +77,10 @@ int zt_send_msg();
 
 int zt_feelings_event(zt_info *ztinfo, char *buffer)
 {
-	if (zt_feelings_check(ztinfo, 5))
+	if (zt_feelings_check(ztinfo, 950))
 		zt_feelings_change(ztinfo);
 	else {
-		if (zt_feelings_wannatalk(200))
+		if (!zt_feelings_wannatalk(900))
 			zt_feelings_talk(ztinfo);
 	}
 	return 0;
