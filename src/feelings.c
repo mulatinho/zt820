@@ -4,17 +4,61 @@ int zt_feeling_of_day(void)
 {
 	srand(time(NULL));
 
-
-
 	return 0;
 }
 
-int zt_feelings_check(void)
+int zt_feelings_change(zt_info *ztinfo)
 {
+	int feelingnow = rand() % FEELINGS_SZ;
+	fprintf(stdout, ":. i change my feelings to %d -> '%s'\n", feelingnow, zt_feelings_desc[feelingnow]); 
+	ztinfo->feeling = feelingnow;
+	return ztinfo->feeling;
+}
+
+int zt_feelings_randnum(void)
+{
+	srand(time(NULL));
+	return (rand() % 1000) +1;
+}
+
+int zt_feelings_wannatalk(int probability)
+{
+	int randnum = zt_feelings_randnum();
+
+	if (randnum > probability) {
+		fprintf(stdout, ":. i wanna talk!\n");
+		return 0;
+	}
+
+	return 1;
+}
+
+int zt_feelings_talk(zt_info *ztinfo)
+{
+	char *happy_talk[] = { "woohoo!!", "yeah _\\,,/", "playing poker... :D" };
+	int happy_talk_sz = sizeof(happy_talk) / sizeof(happy_talk[0]);
+
+	int choice = rand() % happy_talk_sz;
+
+	char buf[BUF_MED];
+
+	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\n", ztinfo->ircserver.channels[0], happy_talk[choice]);
+	write(ztinfo->socket, buf, strlen(buf));
+
 	return 0;
 }
 
-int zt_check_for_changes();
+int zt_feelings_check(zt_info *ztinfo, int probability)
+{
+	int res = 0;
+	int randnum = zt_feelings_randnum();
+
+	if (randnum > probability) {
+		res = zt_feelings_change(ztinfo);
+	}
+
+	return res;
+}
 
 int zt_if_join(zt_feelings *zt)
 {
@@ -28,3 +72,14 @@ int zt_if_join(zt_feelings *zt)
 int zt_if_query();
 int zt_if_part();
 int zt_send_msg();
+
+int zt_feelings_event(zt_info *ztinfo, char *buffer)
+{
+	if (zt_feelings_check(ztinfo, 5))
+		zt_feelings_change(ztinfo);
+	else {
+		if (zt_feelings_wannatalk(200))
+			zt_feelings_talk(ztinfo);
+	}
+	return 0;
+}
