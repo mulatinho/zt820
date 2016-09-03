@@ -163,27 +163,18 @@ int zt_create_server(zt_info *ztinfo)
 				fprintf(stdout, "-> %s\n", buf);
 				if (strstr(buf, "Couldn't look up your hostname")) {
 					memset(sbuf, '\0', sizeof(sbuf));
-					//sleep(2);
 
 					fprintf(stdout, ":. sending username...\n");
-					snprintf(sbuf, sizeof(sbuf), "USER zt_soul 0 * :zt_soul. The irony of destiny\r\n");
+					snprintf(sbuf, sizeof(sbuf), "USER %s 0 * :%s\r\n", ztinfo->username, ztinfo->realname);
 					write(serverpoll->fd, sbuf, strlen(sbuf));
 					
-					//usleep(200);
-
 					fprintf(stdout, ":. sending nickname...\n");
-					snprintf(sbuf, sizeof(sbuf), "NICK zt_soul\r\n");
+					snprintf(sbuf, sizeof(sbuf), "NICK %s\r\n", ztinfo->nick);
 					write(serverpoll->fd, sbuf, strlen(sbuf));
 				} 
-				if (strstr(buf, "zt_soul :End of /MOTD")) {
-					/*fprinf(stdout, ":. sending nickname...\n");
-					snprintf(sbuf, sizeof(sbuf), "NICKSERV IDENTIFY 820zt\r\n");
-					write(serverpoll->fd, sbuf, strlen(sbuf)); */
+				if (strstr(buf, ":End of /MOTD")) {
 					snprintf(sbuf, sizeof(sbuf), "JOIN %s\r\n", ztinfo->ircserver.channels[0]);
 					write(serverpoll->fd, sbuf, strlen(sbuf));
-					/* sleep(2);
-					snprintf(sbuf, sizeof(sbuf), "CHANSERV OP %s\r\n", CHANNEL);
-					write(serverpoll->fd, sbuf, strlen(sbuf)); */
 				}
 					
 				zt_event_loop(ztinfo, buf);
