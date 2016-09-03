@@ -1,0 +1,17 @@
+*~
+*.o*
+.*
+autoscan.log
+sfm
+configure
+config.log
+configure.scan
+config.status
+Makefile
+Makefile.in
+*m4*
+depcomp
+install-sh
+missing
+compile
+test-driver
