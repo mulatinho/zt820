@@ -1,0 +1,32 @@
+#
+
+# TIPO:
+# (1: HUMOR) (2: SAUDACOES)
+#
+# TIPO; HUMOR;
+# TIPO; ENTRADA; SAIDA; HUMOR;
+# TIPO; 
+
+1;1;Feliz;
+1;2;Moderado;
+1;3;Triste;
+1;4;Raiva;
+
+2;oi;e ai, beleza?;1;
+2;oi;oi, tudo bem?;1;
+2;oi;como vai?;1;
+2;oi;oi!!;2;
+2;oi;olá;2;
+2;oi;opa;2;
+2;oi;oi :(;3;
+2;oi;diz bixo..;3;
+2;oi;que oi que nada..;3;
+2;oi;porra de oi!;4;
+2;oi;fala sério..;4;
+2;oi;oi?? bah!;4;
+2;beleza?;beleza brother! :D;1;
+2;beleza?;beleza irmão! :D;1;
+2;beleza?;belezal! :);1;
+2;beleza?;beleza...;2;
+2;beleza?;massa...;2;
+2;beleza?;firmeza...;2;

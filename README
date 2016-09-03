@@ -1,0 +1,22 @@
+zt820 is a nice irc eggdrop robot written in C.
+
+In future zt820 will:
+- talk with you,
+- have feelings and act according,
+- help you doing:
+  - math calculations,
+  - browse google,
+  - browse feeds,
+
+*INSTALL*
+
+$ ./autogen.sh
+$ ./configure
+$ make
+
+*EDIT CONF FILE*
+$ vim data/config
+
+*RUN*
+
+$ ./src/zt820

@@ -1,0 +1,28 @@
+AC_PREREQ(2.58)
+AC_INIT([zt820], [0.01], [Alexandre Mulatinho <alex@mulatinho.net>])
+
+AM_INIT_AUTOMAKE([1.12 subdir-objects foreign])
+AM_SILENT_RULES([yes])
+
+AC_CONFIG_SRCDIR([src/main.c])
+
+AC_CHECK_HEADERS([unistd.h])
+AC_CHECK_HEADERS([pthread.h])
+AC_HEADER_STDC
+
+AC_FUNC_FORK
+AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
+AC_FUNC_MALLOC
+
+AC_CHECK_LIB(pthread, pthread_create)
+
+AC_PROG_CC
+AC_PROG_RANLIB
+AC_PROG_LN_S
+AC_PROG_INSTALL
+AC_PROG_INTLTOOL
+AC_PROG_AWK
+AC_PROG_MAKE_SET
+
+AC_CONFIG_FILES([Makefile src/Makefile libs/Makefile])
+AC_OUTPUT()

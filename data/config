@@ -1,0 +1,14 @@
+# BASIC INFO
+# realname: use "" to long names
+nick zt820
+realname "crudo's son"
+username zt820
+
+# NETWORK
+# channels: you can set mutiple channels using a comma separator
+server irc.freenode.net
+port 6667
+channels #linuxers
+
+# SERVICES PASSWORD
+password
