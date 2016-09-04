@@ -10,13 +10,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 #include "mlt_strlib.h"
 
-/*
- * func: mlt_strkey - get word
- */
 char *mlt_strkey(char *buffer, int who, char del)
 {
 	char *str = (char*)malloc(strlen(buffer));
-	int i, f=0, x=0, loop=0;
+	int i, x=0, loop=0;
 	char ch;
 
 	for (i=0;i<strlen(buffer);i++) {
@@ -38,142 +35,90 @@ char *mlt_strkey(char *buffer, int who, char del)
 		}
 	}
 
-	/*if (!who)
-		*(str + (x-1)) = '\0';
-	else */
-		*(str + x) = '\0';
+	*(str + x) = '\0';
 
 	str=(char*)realloc(str,x);
 	return (char*)str;
 }
 
+int mlt_count(char *buffer, char ch)
+{
+	int result = 0;
+	while (*buffer != '\0') {
+		if (*buffer == ch)
+			result++;
+		buffer++;
+	}
+	return result;
+}
+
 void mlt_strupper(char *buffer)
 {
 	while (*buffer != '\0') {
-		if ((*buffer >= 'a') && (*buffer <= 'z'))
-		       *buffer -= 32;
-		
+		if ((*buffer >= 'a') && (*buffer <= 'z')) *buffer -= 32;
 		buffer++;
 	}
 }
-/* check length and copy buffer to inbuffer if exists the two strings */
-void mlt_strcat(char *inbuffer, char *buffer)
+
+void mlt_strlower(char *buffer)
 {
-	int len = 0, nlen = 0;
+	while (*buffer != '\0') {
+		if ((*buffer >= 'A') && (*buffer <= 'Z')) *buffer += 32;
+		buffer++;
+	}
+}
 
-	if (!inbuffer || !buffer)
-		return;
+const char **mlt_split(char *buffer, char delim)
+{
+	int loop, size;
 
-	nlen = strlen(inbuffer);
-	len  = strlen(buffer) + nlen;
+	size   = mlt_count(buffer, delim);
+	if (!size)
+		return (char**)NULL;
 
-	if (len >= DATASTR_MAX)
-		return;
-
-	inbuffer[--nlen] = ' ';
-
-	//for (; nlen < len; inbuffer[nlen++] = buffer[]);
-
+	char **result = calloc(size * 256, sizeof(char)); 
+	loop = 0;
 	
-
-}
-
-/* check if the buffer has at least n items */
-int mlt_strnchk(char *buffer, int n)
-{
-	if (!buffer)
-		return 0;
-	else if (strlen(buffer) > n)
-		return 0;
-
-	return 1;
-}
-
-/* returns the x position of the first delimiter character */
-int mlt_strndel(char *buffer, char delimiter)
-{
-	int j = 0, n = 0;
-
-	if (!buffer)
-		return j;
-
-	n = strlen(buffer);
-	for (; j < n; j++) {
-		if (buffer[j] == delimiter) {
+	while(1) {
+		char *p = mlt_strkey(buffer, loop, delim);
+		if (!p)
 			break;
-		}
+	
+		*(result + loop) = calloc(256, sizeof(char));
+		memcpy(result[loop], p, strlen(p));
+		loop++;
+		free(p);
 	}
 
-	return j;
+	return (const char *)result;
 }
 
-void mlt_substr(char *buffer, char *in, int left, int right)
+const char *mlt_substr(char *buffer, int left, int right)
 {
-	char result[DATASTR_MAX];
-	int j = 0, n = 0, len = 0, flag = 0;
+	char *result = NULL;
+	int j = 0, n = 0, len = 0;
 
 	if (!buffer)
-		return;
-	else if (!in)
-		flag++;
+		return NULL;
 
 	len = strlen(buffer);
 
-	if (!left || !right || left > len || right > len)
-		return;
+	if (left < 1 || right < 1 || left > len || right > len)
+		return NULL;
 
 	left--;
 	right--;
 
+	result = calloc(len, sizeof(char));
 	for (; j < len; j++) {
 		if (j >= left && j <= right) {
 			result[n++] = buffer[j];
 		}
 	}
 
-	if (flag)
-		fprintf(stdout, "%s", result);
-//	else
-//		in = 
-}
-
-/* char buffer[LENGTH] = "Message to my love: dear love, i want hang out with you";
- * mlt_strget(buffer, in, ':', _STR_INIT); 
- */
-int mlt_strget(char *buffer, char *in, char delim, str_match match)
-{
-	int i, j, ndel, ntotal;
-
-	if (!buffer)
-		return 1;
-
-	while (!in) 
-		in = (char*)malloc(strlen(buffer));
-
-	i = 0; j = 0; ndel = 0; ntotal = 0;
-
-	ntotal = mlt_strndel(buffer, delim);
-
-	for (j = 0; j < strlen(buffer); j++) {
-		if (buffer[j] == delim)
-			ndel++;
-
-		if (match == _STR_INIT) {
-			if (ndel)
-				break;
-
-			in[i++] = buffer[j];
-		}
-
-		if (match == _STR_END) {
-			if (ndel == ntotal) {
-				in[i++] = buffer[j];
-			}
-		}
-	}
-	
-	in[i] = '\0';
-	return 0;
+	result = realloc(result, n);
+	fprintf(stdout, "%s", result);
+	return result;
 }
 
 #ifdef DEBUG
@@ -195,36 +140,27 @@ int main(void)
 
 	fprintf(stdout, "-----\n");
 	fprintf(stdout, "  func: mlt_substr(buffer, NULL, 4, 12);\nresult: ");
-	mlt_substr(buffer, NULL, 4, 12);
+	mlt_substr(buffer, 4, 12);
 
 	fprintf(stdout, "\n-----\n");
 	fprintf(stdout, "  func: mlt_substr(buffer, NULL, 22, 29);\nresult: ");
-	mlt_substr(buffer, NULL, 22, 29);
+	mlt_substr(buffer, 22, 29);
 
-	mlt_strget(buffer, p, ',', _STR_INIT);
-	if (p) {
-		fprintf(stdout, "\n-----\n");
-		fprintf(stdout, "  func: mlt_strget(buffer, p, ',', _STR_INIT);\n");
-		fprintf(stdout, "result: mlt_strget is '%s'\nstr has '%lu' bytes\n", 
-				buffer, p, strlen(p));
-	}
-
-	mlt_strget(buffer, p, ':', _STR_END);
-	if (p) {
-		fprintf(stdout, "-----\n");
-		fprintf(stdout, "  func: mlt_strget(buffer, p, ',', _STR_END);\n");
-		fprintf(stdout, "result: mlt_strget is '%s'\nstr has '%lu' bytes\n", 
-			p, strlen(p));
-	}
-
-	fprintf(stdout, "-----\n");
-	fprintf(stdout, "  func: mlt_strndel(buffer, ',')\n");
-	fprintf(stdout, "result: delimiter found in '%d' bytes\n", 
-		mlt_strndel(buffer, ','));
-
-	mlt_strupper(&buffertwo);
+	mlt_strupper(buffertwo);
 	fprintf(stdout, "\n\n-> %s\n", buffertwo); 
-	
+
+	mlt_strlower(buffertwo);
+	fprintf(stdout, "\n\n-> %s\n", buffertwo); 
+
+	char **things = mlt_split(buffertwo, ' ');
+	fprintf(stdout, "--> %d\n", sizeof(things) / sizeof(things[0]));
+	while (*things) {
+		fprintf(stdout, "--> '%s'\n", *things);
+		things++;
+	}
+	while (*things) {
+		free(*things);
+	}
 	return 0;
 }
 #endif
