@@ -1,5 +1,11 @@
 #include "feelings.h"
 
+int zt_feelings_randnum(void)
+{
+	srand(time(NULL));
+	return (rand() % 1000) +1;
+}
+
 int zt_feeling_of_day(void)
 {
 	srand(time(NULL));
@@ -10,32 +16,19 @@ int zt_feeling_of_day(void)
 int zt_feelings_change(zt_info *ztinfo)
 {
 	int feelingnow = rand() % FEELINGS_SZ;
-	fprintf(stdout, ":. i change my feelings to %d -> '%s'\n", feelingnow, zt_feelings_desc[feelingnow]); 
+	fprintf(stdout, ":. feelings changed from %d:%s, to %d:%s\n", 
+			ztinfo->feeling, zt_feelings_desc[ztinfo->feeling], 
+			feelingnow, zt_feelings_desc[feelingnow]); 
 	ztinfo->feeling = feelingnow;
 	return ztinfo->feeling;
-}
-
-int zt_feelings_randnum(void)
-{
-	srand(time(NULL));
-	return (rand() % 1000) +1;
-}
-
-int zt_feelings_wannatalk(int probability)
-{
-	int randnum = zt_feelings_randnum();
-
-	if (randnum > probability) 
-		return 0;
-
-	return 1;
 }
 
 int zt_feelings_talk(zt_info *ztinfo)
 {
 	char *happy_talk[] = { 
-		"woohoo!!", "yeah _\\,,/", "playing poker... :D",
-		"getting email", "are you sure?", "please, don't do that."
+		"woohoo!! new idea coming..", "i did it! yeah _\\,,/", "playing poker... :D",
+		"getting email", "are you sure?", "please, do that.",
+		"lets fuckin crazy!", "i am stoned.. .^.", "wtf", "rtfm", "lol"
        	};
 	int happy_talk_sz = sizeof(happy_talk) / sizeof(happy_talk[0]);
 
@@ -48,6 +41,16 @@ int zt_feelings_talk(zt_info *ztinfo)
 	write(ztinfo->socket, buf, strlen(buf));
 
 	return 0;
+}
+
+int zt_feelings_wannatalk(int probability)
+{
+	int randnum = zt_feelings_randnum();
+
+	if (randnum > probability) 
+		return 0;
+
+	return 1;
 }
 
 int zt_feelings_check(zt_info *ztinfo, int probability)
@@ -80,7 +83,7 @@ int zt_feelings_event(zt_info *ztinfo, char *buffer)
 	if (zt_feelings_check(ztinfo, 950))
 		zt_feelings_change(ztinfo);
 	else {
-		if (!zt_feelings_wannatalk(900))
+		if (!zt_feelings_wannatalk(975))
 			zt_feelings_talk(ztinfo);
 	}
 	return 0;

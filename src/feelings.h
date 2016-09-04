@@ -8,13 +8,14 @@ typedef enum {
 	ZT_HAPPY      = 2,
 	ZT_AGGRESSIVE = 4,
 	ZT_SAD        = 8,
-	ZT_FRIENDLY   = 16
+	ZT_FRIENDLY   = 16,
+	ZT_MUSIC      = 32,
 } zt_feelings_type;
 
 
-enum { NORMAL, HAPPY, AGGRESSIVE, SAD, FRIENDLY, FEELINGS_SZ };
+enum { NORMAL, HAPPY, AGGRESSIVE, SAD, FRIENDLY, MUSIC, FEELINGS_SZ };
 static char *zt_feelings_desc[] = { 
-	"normal", "happy", "aggressive", "sad", "friendly"
+	"normal", "happy", "aggressive", "sad", "friendly", "music"
 };
 
 typedef struct
