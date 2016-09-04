@@ -1,7 +1,7 @@
 AC_PREREQ(2.58)
 AC_INIT([zt820], [0.01], [Alexandre Mulatinho <alex@mulatinho.net>])
 
-AM_INIT_AUTOMAKE([1.12 subdir-objects foreign])
+AM_INIT_AUTOMAKE([1.11 subdir-objects foreign])
 AM_SILENT_RULES([yes])
 
 AC_CONFIG_SRCDIR([src/main.c])

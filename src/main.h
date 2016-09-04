@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <mhash.h>
 #include <time.h>
 
 #include <poll.h>
