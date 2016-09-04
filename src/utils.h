@@ -22,13 +22,18 @@ typedef struct
 	int (*func)(zt_info *, char *);
 } zt_commands_t;
 
+char *zt_getoupt(char *);
+int zt_cmd_weather(zt_info *, char *);
 int zt_cmd_google(zt_info *, char *);
+int zt_cmd_calc(zt_info *, char *);
 int zt_cmd_quote(zt_info *, char *);
 int zt_cmd_pong(zt_info *, char *);
 
 static zt_commands_t zt_cmd[] = {
 	{"!google", 	PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_google,	},
 	{"!quote", 	PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote,	},
+	{"!calc", 	PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_calc,	},
+	{"!weather", 	PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_weather,	},
 	{"PING :", 	PING, 		GROUP_PUBLIC,	&zt_cmd_pong,	}
 };
 static int zt_commands_sz = sizeof(zt_cmd) / sizeof(zt_cmd[0]);
