@@ -65,17 +65,6 @@ struct zt_owners
 	char nick[BUF_MIN];
 };
 
-struct zt_channel
-{
-	int id;
-
-	int is_op;
-
-	int auto_join;
-
-	char channel[BUF_MIN];
-};
-
 char *mlt_strkey(char *buffer, int who, char del);
 void mlt_strupper(char *buffer);
 
