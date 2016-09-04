@@ -111,13 +111,13 @@ int zt_event_loop(zt_info *ztinfo, char *buffer)
 
 int zt_create_server(zt_info *ztinfo)
 {
-	int rbytes, sw, ret;
+	int rbytes, init = 0, sw, ret;
 	char buf[BUF_MAX], sbuf[BUF_MED];
 	struct hostent *host;
 	struct sockaddr_in server;
 	struct pollfd *serverpoll = malloc(sizeof(struct pollfd));
 
-	sw = 1; ret = 0;
+	sw = 1; ret = init = 0;
 
 	server.sin_port = htons(ztinfo->ircserver.port);
 	server.sin_family = AF_INET;
@@ -161,17 +161,20 @@ int zt_create_server(zt_info *ztinfo)
 				buf[rbytes] = '\0';
 
 				fprintf(stdout, "-> %s\n", buf);
-				if (strstr(buf, "Couldn't look up your hostname")) {
-					memset(sbuf, '\0', sizeof(sbuf));
-
-					fprintf(stdout, ":. sending username...\n");
-					snprintf(sbuf, sizeof(sbuf), "USER %s 0 * :%s\r\n", ztinfo->username, ztinfo->realname);
-					write(serverpoll->fd, sbuf, strlen(sbuf));
+				if (!init) {
+					if (strstr(buf, "your hostname")) {
+						memset(sbuf, '\0', sizeof(sbuf));
+	
+						fprintf(stdout, ":. sending username...\n");
+						snprintf(sbuf, sizeof(sbuf), "USER %s 0 * :%s\r\n", ztinfo->username, ztinfo->realname);
+						write(serverpoll->fd, sbuf, strlen(sbuf));
 					
-					fprintf(stdout, ":. sending nickname...\n");
-					snprintf(sbuf, sizeof(sbuf), "NICK %s\r\n", ztinfo->nick);
-					write(serverpoll->fd, sbuf, strlen(sbuf));
-				} 
+						fprintf(stdout, ":. sending nickname...\n");
+						snprintf(sbuf, sizeof(sbuf), "NICK %s\r\n", ztinfo->nick);
+						write(serverpoll->fd, sbuf, strlen(sbuf));
+					} 
+					init++;
+				}
 				if (strstr(buf, ":End of /MOTD")) {
 					snprintf(sbuf, sizeof(sbuf), "JOIN %s\r\n", ztinfo->ircserver.channels[0]);
 					write(serverpoll->fd, sbuf, strlen(sbuf));
