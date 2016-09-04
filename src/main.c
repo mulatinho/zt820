@@ -140,7 +140,7 @@ int zt_create_server(zt_info *ztinfo)
 
 	fprintf(stderr, ":. server going to wait events..\n");
 	while (1) {
-		ret = poll(serverpoll, 1, 2500);
+		ret = poll(serverpoll, 1, 25000);
 		if (ret < 0) {
 			fprintf(stderr, "poll: requested event failed!\n");
 			return -2;
@@ -186,7 +186,7 @@ int zt_create_server(zt_info *ztinfo)
 			memset(buf, '\0', sizeof(buf));
 			rbytes = 0;
 		}
-		usleep(5000);
+		usleep(500000);
 	}
 	
 	return 0;
