@@ -16,7 +16,8 @@ typedef enum {
 /* Function Prototypes */
 
 char *mlt_strkey(char *buffer, int who, char del);
-void mlt_substr(char *buffer, char *in, int left, int right);
+const char *mlt_substr(char *buffer, int left, int right);
+const char **mlt_split(char *buffer, char delim);
 void mlt_strupper(char *buffer);
 void mlt_strcat(char *, char *);
 
