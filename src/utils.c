@@ -171,10 +171,49 @@ int zt_cmd_weather(zt_info *ztinfo, char *string)
 int zt_cmd_quote(zt_info *ztinfo, char *string)
 {
 	char buf[BUF_MAX];
-	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :!quote surprise, not implemented yet.\r\n", ztinfo->ircserver.channels[0]);
+	char *q = (char*)mlt_strkey(string, 2, ':');
 
+	fprintf(stdout, "string '%s'\n", q);
+	if (strlen(q) > 10) {
+		q[strlen(q)-1] = '\0';
+
+		FILE *fp = fopen("./data/quotes.txt", "a");
+		fprintf(fp, "%s\n", strchr(q, ' ') + 1);
+		fclose(fp);
+
+		snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :yess sir.\r\n", ztinfo->ircserver.channels[0]);
+	} else {
+		FILE *fp = fopen("./data/quotes.txt", "r");
+		if (fp) {
+			char ibuf[BUF_MAX];
+			int lines = 0;
+
+			while(fgets(ibuf, sizeof(ibuf)-1, fp)) { lines++; }
+			
+			int num = rand() % lines; 
+			fprintf(stdout, "lines  %d , num %d\n", lines, num);
+			lines = 0;
+			
+			rewind(fp);
+			while(fgets(ibuf, sizeof(ibuf)-1, fp)) { 
+				if (num == lines) {
+					snprintf(buf, sizeof(buf)-1, 
+						"PRIVMSG %s :[#%d] %s\r\n", ztinfo->ircserver.channels[0], num, ibuf);
+					break;
+				}
+				lines++;
+			}
+			fclose(fp);
+		}
+	}
+
+	if (!strlen(buf)) {
+		snprintf(buf, sizeof(buf)-1, 
+			"PRIVMSG %s :hey joe\r\n", ztinfo->ircserver.channels[0]);
+	}
+
+	fprintf(stdout, "%s", buf);
 	write(ztinfo->socket, buf, strlen(buf));
-	fprintf(stdout, "!quote surprise, not implemented yet.\n");
 
 	return 0;
 }

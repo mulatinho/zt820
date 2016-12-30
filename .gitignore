@@ -15,3 +15,5 @@ install-sh
 missing
 compile
 test-driver
+libs/Makefile
+data/quotes.txt
