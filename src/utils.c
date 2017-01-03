@@ -137,7 +137,7 @@ int zt_cmd_calc(zt_info *ztinfo, char *string)
 		return -1;
 
 	char cmd[BUF_MED];
-	snprintf(cmd, sizeof(cmd)-1, "echo \"%s\" | bc", strchr(q, ' ') + 1);
+	snprintf(cmd, sizeof(cmd)-1, "echo \"scale=2;%s\" | bc", strchr(q, ' ') + 1);
 	char *output = zt_getoutput(cmd);
 	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :'%s' -> %s.\r\n", ztinfo->ircserver.channels[0], strchr(q, ' ') + 1, output);
 
@@ -163,7 +163,6 @@ int zt_cmd_weather(zt_info *ztinfo, char *string)
 		snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\r\n", output);
 		write(ztinfo->socket, buf, strlen(buf));
 	} */
-	fprintf(stdout, "!quote surprise, not implemented yet.\n");
 
 	return 0;
 }
@@ -174,14 +173,17 @@ int zt_cmd_quote(zt_info *ztinfo, char *string)
 	char *q = (char*)mlt_strkey(string, 2, ':');
 
 	fprintf(stdout, "string '%s'\n", q);
-	if (strlen(q) > 10) {
+	if (strlen(q) > 8) {
 		q[strlen(q)-1] = '\0';
 
 		FILE *fp = fopen("./data/quotes.txt", "a");
-		fprintf(fp, "%s\n", strchr(q, ' ') + 1);
-		fclose(fp);
+		char *quote = strchr(q, ' ');
+		if (quote) {
+			fprintf(fp, "%s\n", quote + 1);
+			fclose(fp);
 
-		snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :yess sir.\r\n", ztinfo->ircserver.channels[0]);
+			snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :yess sir.\r\n", ztinfo->ircserver.channels[0]);
+		}
 	} else {
 		FILE *fp = fopen("./data/quotes.txt", "r");
 		if (fp) {
