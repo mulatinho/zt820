@@ -27,11 +27,15 @@ int zt_cmd_weather(zt_info *, char *);
 int zt_cmd_google(zt_info *, char *);
 int zt_cmd_calc(zt_info *, char *);
 int zt_cmd_quote(zt_info *, char *);
+int zt_cmd_quote_find(zt_info *, char *);
+int zt_cmd_quote_del(zt_info *, char *);
 int zt_cmd_pong(zt_info *, char *);
 
 static zt_commands_t zt_cmd[] = {
 	{"!google", 	PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_google,	},
-	{"!quote", 	PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote,	},
+	{"!quotes", 	PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote,	},
+	{"!quotenum", 	PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote_find,	},
+	{"!quotedel", 	PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote_del,	},
 	{"!calc", 	PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_calc,	},
 	{"!weather", 	PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_weather,	},
 	{"PING :", 	PING, 		GROUP_PUBLIC,	&zt_cmd_pong,	}
