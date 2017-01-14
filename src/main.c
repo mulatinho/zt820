@@ -48,7 +48,7 @@ int zt_read_conf(zt_info *ztinfo)
 
 	while (fgets(buffer, sizeof(buffer)-1, zt_conf)) {
 		buffer[strlen(buffer)-1] = '\0';
-		
+
 		if (buffer[0] == '#')
 			continue;
 		else {
@@ -94,7 +94,7 @@ int zt_read_conf(zt_info *ztinfo)
 			free(value);
 		}
 
-		
+
 	}
 
 	fclose(zt_conf);
@@ -121,13 +121,13 @@ int zt_create_server(zt_info *ztinfo)
 
 	server.sin_port = htons(ztinfo->ircserver.port);
 	server.sin_family = AF_INET;
-	
+
 	if ((host = gethostbyname(ztinfo->ircserver.host)) == NULL)
 		return -0xdead;
-	
+
 	memcpy(&server.sin_addr, host->h_addr_list[0], host->h_length);
 
-	if ((ztinfo->socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+	if ((ztinfo->socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		return -1;
 
 	setsockopt(ztinfo->socket, SOL_SOCKET, SO_KEEPALIVE, (char *) &sw, sizeof (sw));
@@ -155,8 +155,8 @@ int zt_create_server(zt_info *ztinfo)
 
 				fprintf(stdout, ":. connection to server is closed\n");
 				break;
-			} 
-			
+			}
+
 			if (rbytes) {
 				buf[rbytes] = '\0';
 
@@ -164,31 +164,31 @@ int zt_create_server(zt_info *ztinfo)
 				if (!init) {
 					if (strstr(buf, "your hostname")) {
 						memset(sbuf, '\0', sizeof(sbuf));
-	
+
 						fprintf(stdout, ":. sending username...\n");
 						snprintf(sbuf, sizeof(sbuf), "USER %s 0 * :%s\r\n", ztinfo->username, ztinfo->realname);
 						write(serverpoll->fd, sbuf, strlen(sbuf));
-					
+
 						fprintf(stdout, ":. sending nickname...\n");
 						snprintf(sbuf, sizeof(sbuf), "NICK %s\r\n", ztinfo->nick);
 						write(serverpoll->fd, sbuf, strlen(sbuf));
-					} 
+					}
 					init++;
 				}
 				if (strstr(buf, ":End of /MOTD")) {
 					snprintf(sbuf, sizeof(sbuf), "JOIN %s\r\n", ztinfo->ircserver.channels[0]);
 					write(serverpoll->fd, sbuf, strlen(sbuf));
 				}
-					
+
 				zt_event_loop(ztinfo, buf);
 			}
-					
+
 			memset(buf, '\0', sizeof(buf));
 			rbytes = 0;
 		}
 		usleep(500000);
 	}
-	
+
 	return 0;
 }
 
@@ -198,9 +198,9 @@ int zt_create_server(zt_info *ztinfo)
 int main(void)
 {
 	zt_info *conf = calloc(1, sizeof(zt_info));
-	
+
 	if (!zt_read_conf(conf))
 		zt_create_server(conf);
-	
+
 	return 0;
 }
