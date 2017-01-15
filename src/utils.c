@@ -338,23 +338,26 @@ int zt_cmd_pong(zt_info *ztinfo, char *string)
 
 int zt_interpret(zt_info *ztinfo, char *string)
 {
-	char buf[BUF_MAX] = {0};
+	int found = 0;
 
 	if (!string) { return 1; }
 
 	zt_clean_string(string);
 
-	char *ptr = zt_get_cmd(string);
+	const char *ptr = zt_get_cmd(string);
 	if (ptr) {
 		for (int i = 0; i < zt_commands_sz; i++) {
 			fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
 			if (!strncmp(zt_cmd[i].command, ptr, strlen(zt_cmd[i].command))) {
 				zt_cmd[i].func(ztinfo, string);
+				found++;
 			}
 		}
-	} else {
+	}
+
+	if (!found) {
 		for (int i = 0; i < zt_commands_sz; i++) {
-			fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
+			fprintf(stdout, ". '%s' %d, '%s' %d\n", string, strlen(string), zt_cmd[i].command, strlen(zt_cmd[i].command));
 			if (strstr(string, zt_cmd[i].command)) {
 				zt_cmd[i].func(ztinfo, string);
 			}
