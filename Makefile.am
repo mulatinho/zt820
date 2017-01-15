@@ -3,6 +3,8 @@
 SUBDIRS = libs src
 AUTOMAKE_OPTIONS = foreign subdir-objects
 
+clean: distclean-local
+
 distclean-local:
 	rm -rf *m4 *.cache *~ {src,libs,data}/*~ {src,libs}/*.{o,in,a} {src,libs}/{zt820,mlt_strlib}  $(DISTCLEANFILES)
 
