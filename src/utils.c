@@ -34,8 +34,6 @@ void zt_clean_string(char *buffer)
 	for (int z = 0; z < strlen(buffer); z++) {
 		if (buffer[z] == '\r' || buffer[z] == '\n') { buffer[z] = '\0'; }
 	}
-
-	buffer = realloc(buffer, strlen(buffer));
 }
 
 char *zt_get_line(char *buffer)
@@ -163,9 +161,7 @@ int zt_cmd_calc(zt_info *ztinfo, char *string)
 	char buf[BUF_MAX];
 	char *q = (char*)mlt_strkey(string, 2, ':');
 
-	if (q)
-		q[strlen(q)-2] = '\0';
-	else
+	if (!q)
 		return -1;
 
 	char cmd[BUF_MED];
@@ -186,7 +182,6 @@ int zt_cmd_weather(zt_info *ztinfo, char *string)
 	if (!args)
 		return -1;
 
-	*(args + (strlen(args)-2)) = '\0';
 	snprintf(cmd, sizeof(cmd)-1, "curl wttr.in/%s 2>/dev/null | head -n 5 | egrep '(Partly|City|C)' | paste -s -d, | sed -e 's/\\x1B\\[[0-9;]*[JKmsu]//g' | cat -A | sed -e 's/M-.//g; s/  / /g; s/@//g' | tr -d '[:punct:]'", args);
 	char *output = zt_getoutput(cmd);
 	fprintf(stdout, "%s\n", output);
@@ -224,7 +219,7 @@ int zt_cmd_quote_find(zt_info *ztinfo, char *string)
 			fclose(fr);
 		}
 		buf[strlen(buf)-1] = '\0';
-		snprintf(response, sizeof(response)-1, "PRIVMSG %s :%s\r\n", ztinfo->ircserver.channels[0], buf);
+		snprintf(response, sizeof(response)-1, "PRIVMSG %s :[%d] %s\r\n", ztinfo->ircserver.channels[0], loop+1, buf);
 	}
 
 
@@ -280,7 +275,6 @@ int zt_cmd_quote(zt_info *ztinfo, char *string)
 	char buf[BUF_MAX];
 	char *q = (char*)mlt_strkey(string, 2, ':');
 
-	zt_clean_string(q);
 	fprintf(stdout, "string '%s'\n", q);
 	if (strlen(q) > 8) {
 		q[strlen(q)-1] = '\0';
@@ -345,27 +339,22 @@ int zt_cmd_pong(zt_info *ztinfo, char *string)
 int zt_interpret(zt_info *ztinfo, char *string)
 {
 	char buf[BUF_MAX] = {0};
-	int found = 0;
 
 	if (!string) { return 1; }
 
+	zt_clean_string(string);
+
 	char *ptr = zt_get_cmd(string);
-	if (strlen(ptr) > 3) {
-		for (int z = 0; z < strlen(ptr); z++) {
-			if (ptr[z] == '\r' || ptr[z] == '\n') { ptr[z] = '\0'; }
-		}
-		
+	if (ptr) {
 		for (int i = 0; i < zt_commands_sz; i++) {
-			//fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
+			fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
 			if (!strncmp(zt_cmd[i].command, ptr, strlen(zt_cmd[i].command))) {
 				zt_cmd[i].func(ztinfo, string);
-				found++;
 			}
 		}
-	}
-
-	if (!found) {
+	} else {
 		for (int i = 0; i < zt_commands_sz; i++) {
+			fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
 			if (strstr(string, zt_cmd[i].command)) {
 				zt_cmd[i].func(ztinfo, string);
 			}
