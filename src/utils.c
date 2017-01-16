@@ -219,12 +219,14 @@ int zt_cmd_quote_find(zt_info *ztinfo, char *string)
 			fclose(fr);
 		}
 		buf[strlen(buf)-1] = '\0';
-		snprintf(response, sizeof(response)-1, "PRIVMSG %s :[%d] %s\r\n", ztinfo->ircserver.channels[0], loop+1, buf);
+		snprintf(response, sizeof(response)-1, "PRIVMSG %s :[#%d] %s\r\n", ztinfo->ircserver.channels[0], loop+1, buf);
 	}
 
 
+	if (!strlen(response)) 
+		snprintf(response, sizeof(response)-1, "PRIVMSG %s :gimme a real one :|\r\n", ztinfo->ircserver.channels[0]);
+
 	write(ztinfo->socket, response, strlen(response));
-	snprintf(response, sizeof(response)-1, "PRIVMSG %s :gimme a real one :|\r\n", ztinfo->ircserver.channels[0]);
 
 	return 0;
 }
@@ -277,8 +279,6 @@ int zt_cmd_quote(zt_info *ztinfo, char *string)
 
 	fprintf(stdout, "string '%s'\n", q);
 	if (strlen(q) > 8) {
-		q[strlen(q)-1] = '\0';
-
 		FILE *fp = fopen("./data/quotes.txt", "a");
 		char *quote = strchr(q, ' ');
 		if (quote) {
