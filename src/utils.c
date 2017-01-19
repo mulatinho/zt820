@@ -29,9 +29,9 @@ char *zt_getoutput(char *cmd)
 		return (char*)ret;
 }
 
-void zt_clean_string(char *buffer) 
+void zt_clean_string(char *buffer)
 {
-	for (int z = 0; z < strlen(buffer); z++) {
+	for (size_t z = 0; z < strlen(buffer); z++) {
 		if (buffer[z] == '\r' || buffer[z] == '\n') { buffer[z] = '\0'; }
 	}
 }
@@ -85,74 +85,31 @@ char *zt_get_args(char *buffer)
 	return NULL;
 }
 
-int zt_cmd_google(zt_info *ztinfo, char *string)
+int zt_cmd_pastebin(zt_info *ztinfo, char* string)
 {
-	struct sockaddr_in inet;
-	struct hostent *host;
-	char buf[BUF_MAX], format[BUF_MAX];
-	int nsoq, bytes;
-	char *q;
+	char buf[512] = {0};
+	char cmd[] = "curl pastebin.com/archives 2>&1 | egrep -o '\"/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sed -e 's/^\"/pastebin.com\\/raw/g' | while read LINE; do curl http://$LINE 2>/dev/null | egrep -i '(sex|pass|xxx|linux|pussy|hack|rip)' 2>&1 >/dev/null; [ $? -eq 0 ] && echo -en \"${LINE}, \"; sleep 0.15; done";
 
-	/* if ((nsoq = socket(AF_INET,SOCK_STREAM,0)) == -1)
-		return -1;
-
-	inet.sin_port   = htons(80);
-	inet.sin_family = AF_INET;
-
-	if ((host=gethostbyname(GOOGLE)) == NULL)
-		return -2;
-
-	memcpy(&inet.sin_addr, host->h_addr_list[0], host->h_length);
-
-	if (connect(nsoq, (struct sockaddr *)&inet, sizeof(inet)) == -1)
-		return -3;
-
-	q = (char*)mlt_strkey(string, 4, ' ');
-
-	if (q)
-		q[strlen(q)-2] = '\0';
-	else
-		return -1;
-
-	snprintf(format, sizeof(format)-1, "GET /search?q=%s HTTP/1.0\r\n", q);
-	send(nsoq, format, strlen(format), 0);
-	fprintf(stdout, ":. sending search to google.. '%s'\n", format);
-
-
-	sleep(1);
-	while ((bytes = recv(nsoq, format, BUF_MAX-1, 0))) {
-		int l = 0, j = 0;
-		format[bytes] = '\0';
-		fprintf(stdout, ":=> %s\n", format);
-
-		for (size_t i=0; i < strlen(format); i++) {
-			if (format[i] == '2' && format[i+14] == 'r' && format[i+15] == 'e' && format[i+16] == 'f')
-			{
-				l++; i+=19;
-			}
-
-			if (l)
-			{
-				if (format[i] == '"')
-				{
-					buf[j] = '\0';
-
-					snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\r\n", ztinfo->ircserver.channels[0], buf);
-					send(nsoq, buf, strlen(buf), 0);
-					l=0; j=0; sleep(1);
-				}
-				else
-				{
-					buf[j] = format[i];
-					j++;
-				}
-			}
-		}
-
-		memset(format, '\0', sizeof(format));
+	if (!string) {
+		return 1;
 	}
 
-	close(nsoq); */
+	srand(time(NULL));
+	if (( (rand() % 1000) + 1 ) > 985) {
+		const char* output = zt_getoutput(cmd);
+		fprintf(stdout, "hey pastebin!");
+
+		if (output) {
+			snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :time for w4r3z -> %s\r\n", ztinfo->ircserver.channels[0], output);
+			write(ztinfo->socket, buf, strlen(buf));
+		}
+	}
+
+	return 0;
+}
+
+int zt_cmd_google(zt_info *ztinfo, char *string)
+{
 	return 0;
 }
 
@@ -176,20 +133,33 @@ int zt_cmd_calc(zt_info *ztinfo, char *string)
 
 int zt_cmd_weather(zt_info *ztinfo, char *string)
 {
-	char buf[BUF_MAX], cmd[BUF_MED];
+	char buf[BUF_MAX] = {0}, cmd[BUF_MED] = {0};
 	char *args = zt_get_args(string);
 
-	if (!args)
-		return -1;
+	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :no such city in records ;)\r\n", ztinfo->ircserver.channels[0]);
 
-	snprintf(cmd, sizeof(cmd)-1, "curl wttr.in/%s 2>/dev/null | head -n 5 | egrep '(Partly|City|C)' | paste -s -d, | sed -e 's/\\x1B\\[[0-9;]*[JKmsu]//g' | cat -A | sed -e 's/M-.//g; s/  / /g; s/@//g' | tr -d '[:punct:]'", args);
-	char *output = zt_getoutput(cmd);
+	if (!args) {
+		write(ztinfo->socket, buf, strlen(buf));
+		return -1;
+	}
+
+	snprintf(cmd, sizeof(cmd)-1, "curl wttr.in/%s 2>/dev/null | head -n 5 | perl -pe 's/\\x1b\\[[0-9;]*[mG]//g' | tr -cd '[[:alnum:]]._- ' | cat -e | sed 's,  , ,g'", args);
+	fprintf(stdout, "%s\n", cmd);
+	const char* output = zt_getoutput(cmd);
 	fprintf(stdout, "%s\n", output);
 
-	/* if (output) {
-		snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\r\n", output);
+	if (!output) {
 		write(ztinfo->socket, buf, strlen(buf));
-	} */
+		return -2;
+	}
+	if (strstr(output, "ERROR")) {
+		write(ztinfo->socket, buf, strlen(buf));
+		return -3;
+	}
+
+	memset(buf, '\0', sizeof(buf));
+	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\r\n", ztinfo->ircserver.channels[0], output);
+	write(ztinfo->socket, buf, strlen(buf));
 
 	return 0;
 }
@@ -223,7 +193,7 @@ int zt_cmd_quote_find(zt_info *ztinfo, char *string)
 	}
 
 
-	if (!strlen(response)) 
+	if (!strlen(response))
 		snprintf(response, sizeof(response)-1, "PRIVMSG %s :gimme a real one :|\r\n", ztinfo->ircserver.channels[0]);
 
 	write(ztinfo->socket, response, strlen(response));
@@ -347,7 +317,7 @@ int zt_interpret(zt_info *ztinfo, char *string)
 	const char *ptr = zt_get_cmd(string);
 	if (ptr) {
 		for (int i = 0; i < zt_commands_sz; i++) {
-			fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
+			//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
 			if (!strncmp(zt_cmd[i].command, ptr, strlen(zt_cmd[i].command))) {
 				zt_cmd[i].func(ztinfo, string);
 				found++;
@@ -357,12 +327,16 @@ int zt_interpret(zt_info *ztinfo, char *string)
 
 	if (!found) {
 		for (int i = 0; i < zt_commands_sz; i++) {
-			fprintf(stdout, ". '%s' %d, '%s' %d\n", string, strlen(string), zt_cmd[i].command, strlen(zt_cmd[i].command));
+			//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", string, strlen(string), zt_cmd[i].command, strlen(zt_cmd[i].command));
 			if (strstr(string, zt_cmd[i].command)) {
 				zt_cmd[i].func(ztinfo, string);
+				found++;
 			}
 		}
 	}
+
+	if (!found)
+		zt_cmd_pastebin(ztinfo, string);
 
 	usleep(500);
 }
