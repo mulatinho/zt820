@@ -5,7 +5,7 @@ char *mlt_strkey(char *buffer, int who, char del);
 char *zt_getoutput(char *cmd)
 {
 	FILE *fp;
-	char buf[256];
+	char buf[BUF_MAX] = {0};
 	char *ret = (char*)malloc(sizeof(buf));
 	int totalbytez = 0;
 
@@ -15,12 +15,14 @@ char *zt_getoutput(char *cmd)
 	while (fgets(buf, sizeof(buf)-1, fp)) {
 		totalbytez+=strlen(buf);
 
-		if (totalbytez > 12)
+		if (totalbytez)
 			ret = (char*)realloc(ret, totalbytez);
 
 		strncat(ret, buf, strlen(buf)-1);
 	}
 	fclose(fp);
+
+	fprintf(stderr, "\n\n%s\n\n", ret);
 
 	if (!strlen(ret)) {
 		free(ret);
@@ -88,7 +90,7 @@ char *zt_get_args(char *buffer)
 int zt_cmd_pastebin(zt_info *ztinfo, char* string)
 {
 	char buf[512] = {0};
-	char cmd[] = "curl pastebin.com/archives 2>&1 | egrep -o '\"/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sed -e 's/^\"/pastebin.com\\/raw/g' | while read LINE; do curl http://$LINE 2>/dev/null | egrep -i '(sex|pass|xxx|linux|pussy|hack|rip)' 2>&1 >/dev/null; [ $? -eq 0 ] && echo -en \"${LINE}, \"; sleep 0.15; done";
+	char cmd[] = "curl pastebin.com/archives 2>&1 | egrep -o '\"/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sed -e 's/^\"/pastebin.com\\/raw/g' | while read LINE; do curl http://$LINE 2>/dev/null | egrep -i '(sex|pass|xxx|linux|pussy|hack|rip)' 2>&1 >/dev/null; [ $? -eq 0 ] && echo -en \"www.${LINE}, \"; sleep 0.15; done";
 
 	if (!string) {
 		return 1;
@@ -133,22 +135,31 @@ int zt_cmd_calc(zt_info *ztinfo, char *string)
 
 int zt_cmd_weather(zt_info *ztinfo, char *string)
 {
-	char buf[BUF_MAX] = {0}, cmd[BUF_MED] = {0};
-	char *args = zt_get_args(string);
+	char buf[BUF_MAX] = {0}, cmd[BUF_MAX] = {0};
+	char* args = NULL, *output = NULL;
 
 	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :no such city in records ;)\r\n", ztinfo->ircserver.channels[0]);
 
-	if (!args) {
+	if (!string) {
+		fprintf(stdout, "no such string");
 		write(ztinfo->socket, buf, strlen(buf));
 		return -1;
 	}
 
-	snprintf(cmd, sizeof(cmd)-1, "curl wttr.in/%s 2>/dev/null | head -n 5 | perl -pe 's/\\x1b\\[[0-9;]*[mG]//g' | tr -cd '[[:alnum:]]._- ' | cat -e | sed 's,  , ,g'", args);
-	fprintf(stdout, "%s\n", cmd);
-	const char* output = zt_getoutput(cmd);
-	fprintf(stdout, "%s\n", output);
+	args = zt_get_args(string);
+	if (!args) {
+		fprintf(stdout, "no such args");
+		write(ztinfo->socket, buf, strlen(buf));
+		return -1;
+	}
+
+	fprintf(stdout, "string '%s'\nargs '%s'\n", string, args);
+	snprintf(cmd, sizeof(cmd)-1, "curl wttr.in/%s 2>/dev/null | head -n 5 | perl -pe 's/\\x1b\\[[0-9;]*[mG]//g' | tr -cd '[[:alnum:]]._- ' | cat -e | sed 's,  , ,g';", args);
+	output = zt_getoutput(cmd);
+	fprintf(stdout, "cmd '%s'\noutput '%s'\n", cmd, output);
 
 	if (!output) {
+		fprintf(stdout, "no such output");
 		write(ztinfo->socket, buf, strlen(buf));
 		return -2;
 	}

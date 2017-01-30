@@ -18,16 +18,18 @@
 
 #define BUF_MAX 1024
 #define BUF_MED 256
-#define BUF_MIN 32
+#define BUF_MIN 64
 
+#define MAX_PERMISSIONS 10
 #define MAX_CHANNELS 5
 
-enum { 
+enum {
 	NICK, REALNAME, USERNAME, SERVER,
 	PORT, CHANNELS, PASSWORD, ZT_CMD_SIZE
 };
+
 static char *zt_commands[] = {
-	"NICK", "REALNAME", "USERNAME", "SERVER", 
+	"NICK", "REALNAME", "USERNAME", "SERVER",
 	"PORT", "CHANNELS", "PASSWORD"
 };
 
@@ -35,16 +37,35 @@ typedef struct
 {
 	int id;
 
-	int port; 
+	char nick[BUF_MIN];
+
+	char channel[BUF_MIN];
 
 	char host[BUF_MED];
-	
+
+	char privileges[BUF_MIN];
+} zt_auth;
+
+typedef struct
+{
+	int id;
+
+	char nick[BUF_MIN];
+
+	char channel[BUF_MIN];
+
+	char host[BUF_MED];
+
+	char message[BUF_MAX];
+
 	char channels[MAX_CHANNELS][BUF_MIN];
-} zt_server;
+} zt_request;
 
 typedef struct
 {
 	int socket;
+
+	int port;
 
 	int feeling;
 
@@ -54,19 +75,15 @@ typedef struct
 
 	char realname[BUF_MED];
 
-	zt_server ircserver;
+	zt_request request;
+
+	zt_auth access_list[MAX_PERMISSIONS];
 } zt_info;
 
-struct zt_owners 
-{	
-	int id;
+char*	mlt_strkey			(char *, int, char);
+void 	mlt_strupper		(char *);
 
-	char nick[BUF_MIN];
-};
+int 	zt_interpret		(zt_info *, char *);
+int 	zt_feelings_event	(zt_info *, char *);
 
-char *mlt_strkey(char *buffer, int who, char del);
-void mlt_strupper(char *buffer);
-
-int zt_interpret(zt_info *, char *);
-int zt_feelings_event(zt_info *, char *);
 #endif
