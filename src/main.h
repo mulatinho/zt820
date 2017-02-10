@@ -80,10 +80,26 @@ typedef struct
 	zt_auth access_list[MAX_PERMISSIONS];
 } zt_info;
 
+typedef struct {
+    int id;
+
+    char nick[BUF_MIN];
+
+    char host[BUF_MED];
+
+    char command[BUF_MIN];
+
+    char argument[BUF_MED];
+
+    char message[BUF_MAX];
+} zt_data;
+
 char*	mlt_strkey			(char *, int, char);
 void 	mlt_strupper		(char *);
 
 int 	zt_interpret		(zt_info *, char *);
 int 	zt_feelings_event	(zt_info *, char *);
+
+void	zt_get_data			(zt_data *, const char *);
 
 #endif
