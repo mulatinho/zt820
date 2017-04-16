@@ -77,18 +77,21 @@ int zt_read_conf(zt_info *ztinfo)
 					memcpy(ztinfo->username, value, BUF_MIN-1);
 					break;
 				case SERVER:
-					memcpy(ztinfo->ircserver.host, value, BUF_MIN-1);
+					memcpy(ztinfo->host, value, BUF_MIN-1);
 					break;
 				case PORT:
-					ztinfo->ircserver.port = atoi(value);
+					ztinfo->port = atoi(value);
 					break;
 				case CHANNELS:
-					memcpy(ztinfo->ircserver.channels[0], value, BUF_MIN-1);
+					memcpy(ztinfo->channels[0], value, BUF_MIN-1);
+					break;
+				case PASSWORD:
+					memcpy(ztinfo->password, value, BUF_MIN-1);
 					break;
 				}
 			}
 			fprintf(stdout, "-> '%s' '%s' '%s' '%s' '%d' '%s'\n", ztinfo->nick, ztinfo->realname, ztinfo->username,
-				ztinfo->ircserver.host, ztinfo->ircserver.port, ztinfo->ircserver.channels[0]);
+				ztinfo->host, ztinfo->port, ztinfo->channels[0]);
 
 			free(property);
 			free(value);
@@ -101,13 +104,58 @@ int zt_read_conf(zt_info *ztinfo)
 	return 0;
 }
 
+void zt_get_data(zt_data *data, const char *buffer)
+{
+    zt_data payload = {
+        .id = 0, .nick = {0},
+        .host = {0}, .command = {0}, .argument = {0}, .message = {0}
+    };
+    int dots = 0, sep = 0, n = 0;
+
+    for (size_t i = 0; i < strlen(buffer); i++) {
+        if (' ' == buffer[i] && dots < 2) { sep++; n = 0; continue; }
+
+        if (dots == 2) { payload.message[n++] = buffer[i]; }
+        else {
+            switch (sep) {
+                case 1:
+                    if ('!' == buffer[i]) { sep++; n = 0; continue; }
+                    else { payload.nick[n++] = buffer[i]; }
+                    break;
+                case 2: payload.host[n++] = buffer[i]; break;
+                case 3: payload.command[n++] = buffer[i]; break;
+                case 4: payload.argument[n++] = buffer[i]; break;
+                default: break;
+            }
+        }
+
+        if (':' == buffer[i]) { dots++; sep++; n = 0; }
+    }
+
+	n = 0; sep = 0;
+	//fprintf(stdout, "%s = %d\n", payload.nick, strlen(payload.nick));
+	if (1 == strlen(payload.nick)) {
+		strcpy(payload.nick, "IRCSERVER");
+
+    	for (size_t i = 0; i < strlen(buffer); i++) {
+			if (' ' == buffer[i] || ':' == buffer[i]) { sep++; n = 0; continue; }
+			if (!sep) { payload.command[n++] = buffer[i]; }
+			else { payload.host[n++] = buffer[i]; }
+		}
+	}
+
+	*data = payload;
+    fprintf(stdout, "nick: '%s', host: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
+        payload.nick, payload.host, payload.command, payload.argument, payload.message);
+}
+
 int zt_event_loop(zt_info *ztinfo, char *buffer)
 {
 	zt_data *data;
 
 	zt_get_data(data, buffer);
 
-	zt_feelings_event(ztinfo, buffer);
+	zt_feelings_event(ztinfo);
 	zt_interpret(ztinfo, buffer);
 
 	return 0;
@@ -123,10 +171,10 @@ int zt_create_server(zt_info *ztinfo)
 
 	sw = 1; ret = init = 0;
 
-	server.sin_port = htons(ztinfo->ircserver.port);
+	server.sin_port = htons(ztinfo->port);
 	server.sin_family = AF_INET;
 
-	if ((host = gethostbyname(ztinfo->ircserver.host)) == NULL)
+	if ((host = gethostbyname(ztinfo->host)) == NULL)
 		return -0xdead;
 
 	memcpy(&server.sin_addr, host->h_addr_list[0], host->h_length);
@@ -180,7 +228,10 @@ int zt_create_server(zt_info *ztinfo)
 					init++;
 				}
 				if (strstr(buf, ":End of /MOTD")) {
-					snprintf(sbuf, sizeof(sbuf), "JOIN %s\r\n", ztinfo->ircserver.channels[0]);
+					snprintf(sbuf, sizeof(sbuf), "MSG NickServ IDENTIFY %s\r\n", ztinfo->password);
+					write(serverpoll->fd, sbuf, strlen(sbuf));
+
+					snprintf(sbuf, sizeof(sbuf), "JOIN %s\r\n", ztinfo->channels[0]);
 					write(serverpoll->fd, sbuf, strlen(sbuf));
 				}
 
@@ -195,9 +246,6 @@ int zt_create_server(zt_info *ztinfo)
 
 	return 0;
 }
-
-
-
 
 int main(void)
 {

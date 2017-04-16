@@ -20,7 +20,7 @@ typedef struct data_msg {
     char message[BUF_MAX];
 } zt_data;
 
-void zt_get_data(struct data_msg *data, const char *buffer)
+void zt_get_data(zt_data *data, const char *buffer)
 {
     struct data_msg payload = {
         .id = 0, .nick = {0},
@@ -81,10 +81,10 @@ int main(int argc, char **argv)
 
 
     for (int i = 0; i < n_strings; i++) {
-        struct data_msg* in;
-		zt_data(in, strings[i]);
+        zt_data *in;
+		zt_get_data(in, strings[i]);
         fprintf(stdout, "buf: %s, in.nick: %s\n\n", strings[i], in->nick);
-    }
+	}
 
     return 0;
 }

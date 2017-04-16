@@ -16,16 +16,16 @@ int zt_feeling_of_day(void)
 int zt_feelings_change(zt_info *ztinfo)
 {
 	int feelingnow = rand() % FEELINGS_SZ;
-	fprintf(stdout, ":. feelings changed from %d:%s, to %d:%s\n", 
-			ztinfo->feeling, zt_feelings_desc[ztinfo->feeling], 
-			feelingnow, zt_feelings_desc[feelingnow]); 
+	fprintf(stdout, ":. feelings changed from %d:%s, to %d:%s\n",
+			ztinfo->feeling, zt_feelings_desc[ztinfo->feeling],
+			feelingnow, zt_feelings_desc[feelingnow]);
 	ztinfo->feeling = feelingnow;
 	return ztinfo->feeling;
 }
 
 int zt_feelings_talk(zt_info *ztinfo)
 {
-	char *happy_talk[] = { 
+	char *happy_talk[] = {
 		"woohoo!! new idea coming..", "i did it! yeah _\\,,/", "playing poker... :D",
 		"getting email", "are you sure?", "please, do that.",
 		"lets fuckin crazy!", "i am stoned.. .^.", "wtf", "rtfm", "lol"
@@ -47,7 +47,7 @@ int zt_feelings_wannatalk(int probability)
 {
 	int randnum = zt_feelings_randnum();
 
-	if (randnum > probability) 
+	if (randnum > probability)
 		return 0;
 
 	return 1;
@@ -78,12 +78,14 @@ int zt_if_query();
 int zt_if_part();
 int zt_send_msg();
 
-int zt_feelings_event(zt_info *ztinfo, char *buffer)
+int zt_feelings_event(zt_info *ztinfo)
 {
-	if (zt_feelings_check(ztinfo, 950))
+	if (zt_feelings_check(ztinfo, 995))
 		zt_feelings_change(ztinfo);
 	else {
-		if (!zt_feelings_wannatalk(975))
+
+		// LAST THING BEFORE JOIN, PART, TALK WITH HIM
+		if (!zt_feelings_wannatalk(985))
 			zt_feelings_talk(ztinfo);
 	}
 	return 0;

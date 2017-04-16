@@ -13,6 +13,11 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#include <errno.h>
+#include <openssl/rand.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
 #ifndef _ZT820_H_
 #define _ZT820_H_
 
@@ -22,6 +27,13 @@
 
 #define MAX_PERMISSIONS 10
 #define MAX_CHANNELS 5
+
+typedef struct {
+    int socket;
+    char *hostname;
+    SSL *ssl;
+    SSL_CTX *ssl_ctx;
+} mlt_sslconn;
 
 enum {
 	NICK, REALNAME, USERNAME, SERVER,
@@ -75,7 +87,13 @@ typedef struct
 
 	char realname[BUF_MED];
 
-	zt_request request;
+    char host[BUF_MED];
+
+    char password[BUF_MED];
+
+    char channels[MAX_CHANNELS][BUF_MIN];
+
+	zt_request ircserver;
 
 	zt_auth access_list[MAX_PERMISSIONS];
 } zt_info;
@@ -98,7 +116,7 @@ char*	mlt_strkey			(char *, int, char);
 void 	mlt_strupper		(char *);
 
 int 	zt_interpret		(zt_info *, char *);
-int 	zt_feelings_event	(zt_info *, char *);
+int 	zt_feelings_event	(zt_info *);
 
 void	zt_get_data			(zt_data *, const char *);
 
