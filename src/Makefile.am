@@ -6,7 +6,7 @@ zt820_CFLAGS = -W -std=c99 -g -ggdb
 
 zt820_SOURCES =	feelings.c 	\
 		utils.c 	\
-	       	main.c 
+	       	main.c
 
 noinst_HEADERS = feelings.h	\
 		 utils.h	\
