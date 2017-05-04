@@ -6,9 +6,13 @@ username zt820_usern
 
 # NETWORK
 # channels: you can set mutiple channels using a comma separator
-server irc.freenode.net
+server irc.freenode.net 
 port 6667
 channels #linuxers
 
+# USE BNC? yes/no
+bnc no
+
 # SERVICES PASSWORD
 password
+nickserv

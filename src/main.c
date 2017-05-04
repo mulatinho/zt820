@@ -85,6 +85,12 @@ int zt_read_conf(zt_info *ztinfo)
 				case CHANNELS:
 					memcpy(ztinfo->ircserver.channels[0], value, BUF_MIN-1);
 					break;
+				case BNC:
+					memcpy(ztinfo->bnc, value, BUF_MIN-1);
+					break;
+				case PASSWORD:
+					memcpy(ztinfo->password, value, BUF_MIN-1);
+					break;
 				}
 			}
 			fprintf(stdout, "-> '%s' '%s' '%s' '%s' '%d' '%s'\n", ztinfo->nick, ztinfo->realname, ztinfo->username,
@@ -137,6 +143,20 @@ int zt_create_server(zt_info *ztinfo)
 
 	serverpoll->fd = ztinfo->socket;
 	serverpoll->events = POLLIN|POLLOUT;
+
+	if (!strncmp(ztinfo->bnc, "yes", 3)) {
+		sleep(1);
+		snprintf(sbuf, sizeof(sbuf), "PASS %s\r\n", ztinfo->password);
+		write(serverpoll->fd, sbuf, strlen(sbuf));
+		sleep(2);
+		snprintf(sbuf, sizeof(sbuf), "USER %s 0 * :%s\r\n", ztinfo->username, ztinfo->realname);
+		write(serverpoll->fd, sbuf, strlen(sbuf));
+		sleep(1);
+		snprintf(sbuf, sizeof(sbuf), "NICK %s\r\n", ztinfo->nick);
+		write(serverpoll->fd, sbuf, strlen(sbuf));
+		
+		init++;
+	}
 
 	fprintf(stderr, ":. server going to wait events..\n");
 	while (1) {
