@@ -405,4 +405,6 @@ int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
 		zt_cmd_pastebin(ztinfo, data, string);
 
 	usleep(500);
+
+	return 0;
 }

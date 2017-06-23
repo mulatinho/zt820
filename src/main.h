@@ -112,6 +112,7 @@ typedef struct {
 char*	mlt_strkey			(char *, int, char);
 void 	mlt_strupper		(char *);
 
+void	zt_get_data			(zt_data *, const char *);
 int 	zt_interpret		(zt_info *, zt_data *, char *);
 int 	zt_feelings_event	(zt_info *, zt_data *);
 

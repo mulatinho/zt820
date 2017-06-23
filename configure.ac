@@ -12,8 +12,8 @@ AC_ARG_ENABLE(openssl,
 
 AS_IF([test "$openssl_active" != yes], [
 	openssl_path=$openssl
-    CFLAGS="$CFLAGS -L$openssl/lib -I$openssl/include"
-    LDFLAGS="$LDFLAGS -lcrypto -lssl"
+    CFLAGS="$CFLAGS -I$openssl/include"
+    LDFLAGS="$LDFLAGS -L$openssl/lib -lcrypto -lssl"
 ])
 
 AC_CHECK_HEADERS([unistd.h])

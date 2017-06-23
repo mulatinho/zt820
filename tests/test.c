@@ -3,7 +3,9 @@
 #include <string.h>
 #include "../src/main.h"
 
-int main(int argc, char **argv)
+void zt_get_data(zt_data *, const char *);
+
+int main(void)
 {
     const char* strings[] = {
         ":crudo!~kayaman@unaffiliated/alexandre PRIVMSG #linuxers :!quotenum 2314242",
