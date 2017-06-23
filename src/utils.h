@@ -19,17 +19,19 @@ typedef struct
 
 	int type_message, group;
 
-	int (*func)(zt_info *, char *);
+	int (*func)(zt_info *, zt_data *, char *);
 } zt_commands_t;
 
-char 	*zt_getoupt			(char *);
-int 	zt_cmd_weather		(zt_info *, char *);
-int 	zt_cmd_google		(zt_info *, char *);
-int 	zt_cmd_calc			(zt_info *, char *);
-int 	zt_cmd_quote		(zt_info *, char *);
-int		zt_cmd_quote_find	(zt_info *, char *);
-int 	zt_cmd_quote_del	(zt_info *, char *);
-int 	zt_cmd_pong			(zt_info *, char *);
+char 	*zt_get_output		(char *);
+void	zt_get_data			(zt_data *, const char *);
+
+int 	zt_cmd_weather		(zt_info *, zt_data *, char *);
+int 	zt_cmd_google		(zt_info *, zt_data *, char *);
+int 	zt_cmd_calc			(zt_info *, zt_data *, char *);
+int 	zt_cmd_quote		(zt_info *, zt_data *, char *);
+int		zt_cmd_quote_find	(zt_info *, zt_data *, char *);
+int 	zt_cmd_quote_del	(zt_info *, zt_data *, char *);
+int 	zt_cmd_pong			(zt_info *, zt_data *, char *);
 
 static zt_commands_t zt_cmd[] = {
 	{"!google", 	PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_google,	},

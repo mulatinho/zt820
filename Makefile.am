@@ -1,12 +1,11 @@
 @SET_MAKE@
 
-SUBDIRS = libs src
+SUBDIRS = libs src tests
 AUTOMAKE_OPTIONS = foreign subdir-objects
-TESTS = tests/test.c
+TESTS = tests/test
 
 test: $(TESTS)
-	gcc -o $@ $<
-	./$@
+	./tests/$@
 
 distclean-local:
 	rm -rf *m4 *.cache *~ {src,libs,data}/*~ {src,libs}/*.{o,in,a} {src,libs}/{zt820,mlt_strlib}  $(DISTCLEANFILES)

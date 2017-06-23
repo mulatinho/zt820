@@ -31,8 +31,9 @@ typedef struct
 
 
 int 	zt_feeling_of_day		(void);
-int 	zt_feelings_event		(zt_info *);
+int 	zt_feelings_event		(zt_info *, zt_data *);
 int 	zt_feelings_check		(zt_info *, int);
+int		zt_feelings_talk		(zt_info *, zt_data *);
 int 	zt_check_for_changes	(void);
 int 	zt_if_join				(zt_feelings *);
 int 	zt_if_query				(void);

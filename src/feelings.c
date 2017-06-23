@@ -23,7 +23,7 @@ int zt_feelings_change(zt_info *ztinfo)
 	return ztinfo->feeling;
 }
 
-int zt_feelings_talk(zt_info *ztinfo)
+int zt_feelings_talk(zt_info *ztinfo, zt_data *data)
 {
 	char *happy_talk[] = {
 		"woohoo!! new idea coming..", "i did it! yeah _\\,,/", "playing poker... :D",
@@ -37,7 +37,7 @@ int zt_feelings_talk(zt_info *ztinfo)
 	char buf[BUF_MED];
 
 	fprintf(stdout, ":. i wanna talk! -> '%s'\n", happy_talk[choice]);
-	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\n", ztinfo->ircserver.channels[0], happy_talk[choice]);
+	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\n", data->argument, happy_talk[choice]);
 	write(ztinfo->socket, buf, strlen(buf));
 
 	return 0;
@@ -78,7 +78,7 @@ int zt_if_query();
 int zt_if_part();
 int zt_send_msg();
 
-int zt_feelings_event(zt_info *ztinfo)
+int zt_feelings_event(zt_info *ztinfo, zt_data *data)
 {
 	if (zt_feelings_check(ztinfo, 995))
 		zt_feelings_change(ztinfo);
@@ -86,7 +86,7 @@ int zt_feelings_event(zt_info *ztinfo)
 
 		// LAST THING BEFORE JOIN, PART, TALK WITH HIM
 		if (!zt_feelings_wannatalk(985))
-			zt_feelings_talk(ztinfo);
+			zt_feelings_talk(ztinfo, data);
 	}
 	return 0;
 }

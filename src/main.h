@@ -36,12 +36,12 @@ typedef struct {
 } mlt_sslconn;
 
 enum {
-	NICK, REALNAME, USERNAME, SERVER,
+	NICKNAME, REALNAME, USERNAME, SERVER,
 	PORT, CHANNELS, BNC, PASSWORD, NICKSERV, ZT_CMD_SIZE
 };
 
 static char *zt_commands[] = {
-	"NICK", "REALNAME", "USERNAME", "SERVER",
+	"NICKNAME", "REALNAME", "USERNAME", "SERVER",
 	"PORT", "CHANNELS", "BNC", "PASSWORD", "NICKSERV"
 };
 
@@ -81,17 +81,18 @@ typedef struct
 
 	int feeling;
 
+    char host[BUF_MED];
+
 	char bnc[BUF_MIN];
 
 	char nick[BUF_MIN];
 
 	char username[BUF_MIN];
 
+	char channels[MAX_CHANNELS][BUF_MED];
 	char realname[BUF_MED];
 
 	char password[BUF_MIN];
-
-	zt_server ircserver;
 } zt_info;
 
 typedef struct {
@@ -111,9 +112,7 @@ typedef struct {
 char*	mlt_strkey			(char *, int, char);
 void 	mlt_strupper		(char *);
 
-int 	zt_interpret		(zt_info *, char *);
-int 	zt_feelings_event	(zt_info *);
-
-void	zt_get_data			(zt_data *, const char *);
+int 	zt_interpret		(zt_info *, zt_data *, char *);
+int 	zt_feelings_event	(zt_info *, zt_data *);
 
 #endif

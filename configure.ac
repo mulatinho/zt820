@@ -36,5 +36,5 @@ AC_PROG_INSTALL
 AC_PROG_AWK
 AC_PROG_MAKE_SET
 
-AC_CONFIG_FILES([Makefile src/Makefile libs/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile libs/Makefile tests/Makefile])
 AC_OUTPUT()

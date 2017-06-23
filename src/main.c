@@ -67,7 +67,7 @@ int zt_read_conf(zt_info *ztinfo)
 			int idcmd = zt_check_configcmd(property);
 			if (idcmd != -1 && value) {
 				switch (idcmd) {
-				case NICK:
+				case NICKNAME:
 					memcpy(ztinfo->nick, value, BUF_MIN-1);
 					break;
 				case REALNAME:
@@ -91,9 +91,6 @@ int zt_read_conf(zt_info *ztinfo)
 				case BNC:
 					memcpy(ztinfo->bnc, value, BUF_MIN-1);
 					break;
-				case PASSWORD:
-					memcpy(ztinfo->password, value, BUF_MIN-1);
-					break;
 				}
 			}
 			fprintf(stdout, "-> '%s' '%s' '%s' '%s' '%d' '%s'\n", ztinfo->nick, ztinfo->realname, ztinfo->username,
@@ -110,65 +107,14 @@ int zt_read_conf(zt_info *ztinfo)
 	return 0;
 }
 
-void zt_get_data(zt_data *data, const char *buffer)
-{
-    zt_data payload = {
-        .id = 0, .nick = {0},
-        .host = {0}, .command = {0}, .argument = {0}, .message = {0}
-    };
-    int dots = 0, sep = 0, n = 0;
-
-    for (size_t i = 0; i < strlen(buffer); i++) {
-        if (' ' == buffer[i] && dots < 2) { sep++; n = 0; continue; }
-
-        if (dots == 2) { payload.message[n++] = buffer[i]; }
-        else {
-            switch (sep) {
-                case 1:
-                    if ('!' == buffer[i]) { sep++; n = 0; continue; }
-                    else { payload.nick[n++] = buffer[i]; }
-                    break;
-                case 2: payload.host[n++] = buffer[i]; break;
-                case 3: payload.command[n++] = buffer[i]; break;
-                case 4: payload.argument[n++] = buffer[i]; break;
-                default: break;
-            }
-        }
-
-        if (':' == buffer[i]) { dots++; sep++; n = 0; }
-    }
-
-	n = 0; sep = 0;
-	//fprintf(stdout, "%s = %d\n", payload.nick, strlen(payload.nick));
-	if (1 == strlen(payload.nick)) {
-		strcpy(payload.nick, "IRCSERVER");
-
-    	for (size_t i = 0; i < strlen(buffer); i++) {
-			if (' ' == buffer[i] || ':' == buffer[i]) { sep++; n = 0; continue; }
-			if (!sep) { payload.command[n++] = buffer[i]; }
-			else { payload.host[n++] = buffer[i]; }
-		}
-	}
-
-	zt_clean_string(payload.nick);
-	zt_clean_string(payload.host);
-	zt_clean_string(payload.command);
-	zt_clean_string(payload.argument);
-	zt_clean_string(payload.message);
-
-	*data = payload;
-    fprintf(stdout, "nick: '%s', host: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
-        payload.nick, payload.host, payload.command, payload.argument, payload.message);
-}
-
 int zt_event_loop(zt_info *ztinfo, char *buffer)
 {
 	zt_data *data = malloc(sizeof(zt_data));
 
 	zt_get_data(data, buffer);
 
-	zt_feelings_event(ztinfo);
-	zt_interpret(ztinfo, buffer);
+	zt_feelings_event(ztinfo, data);
+	zt_interpret(ztinfo, data, buffer);
 
 	free(data);
 
@@ -214,7 +160,7 @@ int zt_create_server(zt_info *ztinfo)
 		sleep(1);
 		snprintf(sbuf, sizeof(sbuf), "NICK %s\r\n", ztinfo->nick);
 		write(serverpoll->fd, sbuf, strlen(sbuf));
-		
+
 		init++;
 	}
 
@@ -240,22 +186,29 @@ int zt_create_server(zt_info *ztinfo)
 			if (rbytes) {
 				buf[rbytes] = '\0';
 
+#ifdef DEBUG
 				fprintf(stdout, "-> %s\n", buf);
+#endif
 				if (!init) {
 					if (strstr(buf, "your hostname")) {
+						sleep(1);
 						memset(sbuf, '\0', sizeof(sbuf));
 
-						fprintf(stdout, ":. sending username...\n");
 						snprintf(sbuf, sizeof(sbuf), "USER %s 0 * :%s\r\n", ztinfo->username, ztinfo->realname);
+						fprintf(stdout, ":. sending username... %s", sbuf);
 						write(serverpoll->fd, sbuf, strlen(sbuf));
 
-						fprintf(stdout, ":. sending nickname...\n");
+						sleep(1);
+						memset(sbuf, '\0', sizeof(sbuf));
+
 						snprintf(sbuf, sizeof(sbuf), "NICK %s\r\n", ztinfo->nick);
+						fprintf(stdout, ":. sending nickname... %s", sbuf);
 						write(serverpoll->fd, sbuf, strlen(sbuf));
 					}
 					init++;
 				}
 				if (strstr(buf, ":End of /MOTD")) {
+					sleep(1);
 					snprintf(sbuf, sizeof(sbuf), "MSG NickServ IDENTIFY %s\r\n", ztinfo->password);
 					write(serverpoll->fd, sbuf, strlen(sbuf));
 
