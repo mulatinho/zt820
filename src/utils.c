@@ -33,8 +33,10 @@ char *zt_getoutput(char *cmd)
 
 void zt_clean_string(char *buffer)
 {
-	for (size_t z = 0; z < strlen(buffer); z++) {
-		if (buffer[z] == '\r' || buffer[z] == '\n') { buffer[z] = '\0'; }
+	if (buffer) {
+		for (size_t z = 0; z < strlen(buffer); z++) {
+			if (buffer[z] == '\r' || buffer[z] == '\n') { buffer[z] = '\0'; }
+		}
 	}
 }
 
@@ -42,9 +44,11 @@ char *zt_get_line(char *buffer)
 {
 	char *line = NULL;
 
-	line = (char*)mlt_strkey(buffer, 2, ':');
-	if (!line)
-		return NULL;
+	if (buffer) {
+		line = (char*)mlt_strkey(buffer, 2, ':');
+		if (!line)
+			return NULL;
+	}
 
 	return line;
 }

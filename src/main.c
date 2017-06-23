@@ -144,6 +144,12 @@ void zt_get_data(zt_data *data, const char *buffer)
 		}
 	}
 
+	zt_clean_string(payload.nick);
+	zt_clean_string(payload.host);
+	zt_clean_string(payload.command);
+	zt_clean_string(payload.argument);
+	zt_clean_string(payload.message);
+
 	*data = payload;
     fprintf(stdout, "nick: '%s', host: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
         payload.nick, payload.host, payload.command, payload.argument, payload.message);
@@ -151,12 +157,14 @@ void zt_get_data(zt_data *data, const char *buffer)
 
 int zt_event_loop(zt_info *ztinfo, char *buffer)
 {
-	zt_data *data;
+	zt_data *data = malloc(sizeof(zt_data));
 
 	zt_get_data(data, buffer);
 
 	zt_feelings_event(ztinfo);
 	zt_interpret(ztinfo, buffer);
+
+	free(data);
 
 	return 0;
 }

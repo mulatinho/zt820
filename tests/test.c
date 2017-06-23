@@ -60,6 +60,12 @@ void zt_get_data(zt_data *data, const char *buffer)
 		}
 	}
 
+    zt_clean_string(payload.nick);
+	zt_clean_string(payload.host);
+	zt_clean_string(payload.command);
+	zt_clean_string(payload.argument);
+	zt_clean_string(payload.message);
+
 	*data = payload;
     fprintf(stdout, "nick: '%s', host: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
         payload.nick, payload.host, payload.command, payload.argument, payload.message);
@@ -79,12 +85,12 @@ int main(int argc, char **argv)
     };
     int n_strings = (sizeof(strings) / sizeof(const char*));
 
-
     for (int i = 0; i < n_strings; i++) {
-        zt_data *in;
+        zt_data *in = malloc(sizeof(zt_data));
 		zt_get_data(in, strings[i]);
         fprintf(stdout, "buf: %s, in.nick: %s\n\n", strings[i], in->nick);
-	}
+        free(in);
+    }
 
     return 0;
 }

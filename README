@@ -11,7 +11,7 @@ In future zt820 will:
 *INSTALL*
 
 $ ./autogen.sh
-$ ./configure
+$ ./configure --enable-openssl=/usr/local/opt/openssl/ #OSX
 $ make
 
 *EDIT CONF FILE*
