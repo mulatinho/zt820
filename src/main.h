@@ -37,12 +37,12 @@ typedef struct {
 
 enum {
 	NICK, REALNAME, USERNAME, SERVER,
-	PORT, CHANNELS, PASSWORD, ZT_CMD_SIZE
+	PORT, CHANNELS, BNC, PASSWORD, NICKSERV, ZT_CMD_SIZE
 };
 
 static char *zt_commands[] = {
 	"NICK", "REALNAME", "USERNAME", "SERVER",
-	"PORT", "CHANNELS", "PASSWORD"
+	"PORT", "CHANNELS", "BNC", "PASSWORD", "NICKSERV"
 };
 
 typedef struct
@@ -81,21 +81,17 @@ typedef struct
 
 	int feeling;
 
+	char bnc[BUF_MIN];
+
 	char nick[BUF_MIN];
 
 	char username[BUF_MIN];
 
 	char realname[BUF_MED];
 
-    char host[BUF_MED];
+	char password[BUF_MIN];
 
-    char password[BUF_MED];
-
-    char channels[MAX_CHANNELS][BUF_MIN];
-
-	zt_request ircserver;
-
-	zt_auth access_list[MAX_PERMISSIONS];
+	zt_server ircserver;
 } zt_info;
 
 typedef struct {
