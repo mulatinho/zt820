@@ -8,14 +8,28 @@ In future zt820 will:
   - browse google,
   - browse feeds,
 
+
 *INSTALL*
 
 $ ./autogen.sh
+
+# check dependencies and make build
 $ ./configure --enable-openssl=/usr/local/opt/openssl/ #OSX
+$ ./configure --enable-openssl=/usr/local/opt/openssl/ #OSX
+
+# compile code
 $ make
+
+# if you wanna test things
+$ make test
+
+# install on system
+$ sudo make install DESTDIR=/usr
+
 
 *EDIT CONF FILE*
 $ vim data/config
+
 
 *RUN*
 
