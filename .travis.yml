@@ -1,5 +1,5 @@
 language: c
-compiler: clang
+compiler: gcc 
 before_install:
     - ./autogen.sh
 env:
