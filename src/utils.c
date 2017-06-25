@@ -94,7 +94,7 @@ char *zt_get_args(char *buffer)
 int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data, char* string)
 {
 	char buf[512] = {0};
-	char cmd[] = "curl -L pastebin.com/archives 2>&1 | egrep -o '\"/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sed -e 's/^/pastebin.com\\/raw/g' | while read LINE; do curl http://$LINE 2>/dev/null | egrep -i '(sex|pass|xxx|linux|pussy|hack|rip)' 2>&1 >/dev/null; [ $? -eq 0 ] && echo -en \"www.${LINE}, \"; sleep 0.15; done";
+	char cmd[] = "curl -L pastebin.com/archives 2>&1 | egrep -o '/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sort -u | while read id; do sleep 0.100; curl -s www.pastebin.com/raw$id | egrep -i '(sex|pass|xxx|linux|pussy|hack|rip|#include|int main|:.*:.*:|cheat|leak|owned|torrent)' >/dev/null 2>&1 ; res=$?; [ $res -eq 0 ] && eval echo -n ',www.pastebin.com/raw$id'; done";
 
 	if (!string) {
 		return 1;
@@ -158,7 +158,7 @@ int zt_cmd_weather(zt_info *ztinfo, zt_data *data, char *string)
 	}
 
 	fprintf(stdout, "string '%s'\nargs '%s'\n", string, args);
-	snprintf(cmd, sizeof(cmd)-1, "curl 'wttr.in/%s?T' 2>/dev/null | head -n 5 | xargs", args);
+	snprintf(cmd, sizeof(cmd)-1, "curl 'wttr.in/%s?Tm' 2>/dev/null | head -n 5 | xargs", args);
 	fprintf(stdout, "executing '%s'\n", cmd);
 	output = zt_get_output(cmd);
 	fprintf(stdout, "cmd '%s'\noutput '%s'\n", cmd, output);
