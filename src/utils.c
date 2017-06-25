@@ -158,7 +158,8 @@ int zt_cmd_weather(zt_info *ztinfo, zt_data *data, char *string)
 	}
 
 	fprintf(stdout, "string '%s'\nargs '%s'\n", string, args);
-	snprintf(cmd, sizeof(cmd)-1, "curl wttr.in/%s 2>/dev/null | head -n 5 | perl -pe 's/\\x1b\\[[0-9;]*[mG]//g' | tr -cd '[[:alnum:]]._- ' | cat -e | sed 's,  , ,g';", args);
+	snprintf(cmd, sizeof(cmd)-1, "curl 'wttr.in/%s?T' 2>/dev/null | head -n 5 | xargs", args);
+	fprintf(stdout, "executing '%s'\n", cmd);
 	output = zt_get_output(cmd);
 	fprintf(stdout, "cmd '%s'\noutput '%s'\n", cmd, output);
 
