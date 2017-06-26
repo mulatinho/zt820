@@ -1,6 +1,5 @@
-AM_CFLAGS = -I../libs
 bin_PROGRAMS = utilstest
-utilstest_CFLAGS = -I../libs -L ../libs -I../src -DTEST=1 -W -std=c99 -g -ggdb
+utilstest_CFLAGS = -I../src -L../libs -DTEST=1 -W -std=c99 -g -ggdb
 utilstest_LDFLAGS = -lmlt_strlib
-utilstest_LDADD = ../libs/libmlt_strlib.a ../src/zt820-utils.o ../src/zt820-feelings.o
+utilstest_LDADD = ../src/zt820-utils.o ../src/zt820-feelings.o -lmlt_strlib
 utilstest_SOURCES = utilstest.c
