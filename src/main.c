@@ -228,6 +228,7 @@ int zt_create_server(zt_info *ztinfo)
 	return 0;
 }
 
+#ifndef TEST
 int main(void)
 {
 	zt_info *conf = calloc(1, sizeof(zt_info));
@@ -237,3 +238,4 @@ int main(void)
 
 	return 0;
 }
+#endif

@@ -2,10 +2,10 @@
 
 SUBDIRS = libs src tests
 AUTOMAKE_OPTIONS = foreign subdir-objects
-TESTS = tests/test
+TESTS = tests/utilstest
 
 test: $(TESTS)
-	./tests/$@
+	@for test in $(TESTS); do echo "\033[1m:. executing '$$test'...\033[m"; ./$$test; done
 
 distclean-local:
 	rm -rf *m4 *.cache *~ {src,libs,data}/*~ {src,libs}/*.{o,in,a} {src,libs}/{zt820,mlt_strlib}  $(DISTCLEANFILES)

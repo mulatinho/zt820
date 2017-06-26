@@ -116,6 +116,45 @@ int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data, char* string)
 
 int zt_cmd_google(zt_info *ztinfo, zt_data *data, char *string)
 {
+	char buf[BUF_MAX] = {0}, cmd[BUF_MAX] = {0};
+	char* args = NULL, *output = NULL;
+
+	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :are you kidding with me mothafuka?\r\n", data->argument);
+
+	if (!string) {
+		fprintf(stdout, "no such string");
+		write(ztinfo->socket, buf, strlen(buf));
+		return -1;
+	}
+
+	args = zt_get_args(string);
+	if (!args) {
+		fprintf(stdout, "no such args");
+		write(ztinfo->socket, buf, strlen(buf));
+		return -1;
+	}
+
+	//FIXME
+	//htmlentities on query args
+
+	snprintf(cmd, sizeof(cmd)-1, "curl -4 -s -L -A 'Mozilla/5.0 (MSIE; Windows 10)' -o res.html https://www.google.com/search?q=%s && egrep -o 'http(s|)://[a-Z0-9./~_]+' res.html | sort -u | egrep -v '(encrypted|google|www.$)' | xargs | sed -e 's@ @, @g'", args);
+	output = zt_get_output(cmd);
+	fprintf(stdout, "cmd '%s'\noutput '%s'\n", cmd, output);
+
+	if (!output) {
+		fprintf(stdout, "no such output");
+		write(ztinfo->socket, buf, strlen(buf));
+		return -2;
+	}
+	if (strstr(output, "ERROR")) {
+		write(ztinfo->socket, buf, strlen(buf));
+		return -3;
+	}
+
+	memset(buf, '\0', sizeof(buf));
+	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\r\n", data->argument, output);
+	write(ztinfo->socket, buf, strlen(buf));
+
 	return 0;
 }
 
@@ -157,9 +196,7 @@ int zt_cmd_weather(zt_info *ztinfo, zt_data *data, char *string)
 		return -1;
 	}
 
-	fprintf(stdout, "string '%s'\nargs '%s'\n", string, args);
 	snprintf(cmd, sizeof(cmd)-1, "curl 'wttr.in/%s?Tm' 2>/dev/null | head -n 5 | xargs", args);
-	fprintf(stdout, "executing '%s'\n", cmd);
 	output = zt_get_output(cmd);
 	fprintf(stdout, "cmd '%s'\noutput '%s'\n", cmd, output);
 
@@ -369,8 +406,10 @@ void zt_get_data(zt_data *data, const char *buffer)
 	zt_clean_string(payload.message);
 
 	*data = payload;
+#ifdef DEBUG
     fprintf(stdout, "nick: '%s', host: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
         payload.nick, payload.host, payload.command, payload.argument, payload.message);
+#endif
 }
 
 int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
