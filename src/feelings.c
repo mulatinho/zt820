@@ -13,6 +13,25 @@ int zt_feeling_of_day(void)
 	return 0;
 }
 
+int zt_feelings_talk_with_me(zt_info* ztinfo, zt_data* data)
+{
+	char *talk[] = {
+		"lets fuckin crazy!", "hey man, how are you doing?", 
+		"are you talkin with me?", "hey <NICK>"
+	};
+	int talk_sz = sizeof(talk) / sizeof(talk[0]);
+
+	int choice = rand() % talk_sz;
+
+	char buf[BUF_MED];
+
+	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\n", data->argument, talk[choice]);
+	write(ztinfo->socket, buf, strlen(buf));
+
+	return 0;
+}
+
+
 int zt_feelings_change(zt_info *ztinfo)
 {
 	int feelingnow = rand() % FEELINGS_SZ;
@@ -29,7 +48,7 @@ int zt_feelings_talk(zt_info *ztinfo, zt_data *data)
 		"woohoo!! new idea coming..", "i did it! yeah _\\,,/", "playing poker... :D",
 		"getting email", "are you sure?", "please, do that.",
 		"lets fuckin crazy!", "i am stoned.. .^.", "wtf", "rtfm", "lol"
-       	};
+	};
 	int happy_talk_sz = sizeof(happy_talk) / sizeof(happy_talk[0]);
 
 	int choice = rand() % happy_talk_sz;
@@ -87,6 +106,9 @@ int zt_feelings_event(zt_info *ztinfo, zt_data *data)
 		// LAST THING BEFORE JOIN, PART, TALK WITH HIM
 		if (!zt_feelings_wannatalk(985))
 			zt_feelings_talk(ztinfo, data);
+		else if (strcasestr(data->message, "zt820"))
+			zt_feelings_talk_with_me(ztinfo, data);
+
 	}
 	return 0;
 }
