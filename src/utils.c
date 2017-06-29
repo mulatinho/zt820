@@ -137,7 +137,7 @@ int zt_cmd_google(zt_info *ztinfo, zt_data *data, char *string)
 	//FIXME
 	//htmlentities on query args
 
-	snprintf(cmd, sizeof(cmd)-1, "curl -4 -s -L -A 'Mozilla/5.0 (MSIE; Windows 10)' -o res.html https://www.google.com/search?q=%s && egrep -o 'http(s|)://[a-Z0-9./~_]+' res.html | sort -u | egrep -v '(encrypted|google|www.$)' | xargs | sed -e 's@ @, @g'", args);
+	snprintf(cmd, sizeof(cmd)-1, "curl -4 -s -L -A 'Mozilla/5.0 (MSIE; Windows 10)' -o res.html https://www.google.com/search?q=%s && egrep -o 'q=(http|https)://[^ &]+' res.html | sort -u | egrep -v '(encrypted|google|www.$|youtube.*(results|watch))' | sed -e 's@^.*//@@; s@$@, @g' | xargs" , args);
 	output = zt_get_output(cmd);
 	fprintf(stdout, "cmd '%s'\noutput '%s'\n", cmd, output);
 
