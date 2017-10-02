@@ -94,7 +94,7 @@ char *zt_get_args(char *buffer)
 int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data, char* string)
 {
 	char buf[512] = {0};
-	char cmd[] = "curl -L pastebin.com/archives 2>&1 | egrep -o '/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sort -u | while read id; do sleep 0.100; curl -s www.pastebin.com/raw$id | egrep -i '(0day|pass|hack|rip|:.*:.*:|leak|.wn.d |torrent|dump|.*@.*[A-Za-z_.]{2} .{6})|^.*.{6}:.*.{6}$')' >/dev/null 2>&1 ; res=$?; [ $res -eq 0 ] && eval echo -n ',www.pastebin.com/raw$id'; done";
+	char cmd[] = "curl -L pastebin.com/archives 2>&1 | egrep -o '/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sort -u | while read id; do sleep 0.100; curl -s www.pastebin.com/raw$id | egrep -i '(0day|pass|hack|rip|:.*:.*:|leak|.wn.d |torrent|dump|.*@.*[A-Za-z_.]{2} .{6})|^.*.{6}:.*.{6}$)' >/dev/null 2>&1 ; res=$?; [ $res -eq 0 ] && eval echo -n ',www.pastebin.com/raw$id'; done";
 
 	if (!string) {
 		return 1;
