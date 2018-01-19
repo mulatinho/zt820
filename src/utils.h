@@ -36,6 +36,7 @@ int 	zt_cmd_pong			(zt_info *, zt_data *, char *);
 static zt_commands_t zt_cmd[] = {
 	{"!google", 	PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_google,	},
 	{"!quotes", 	PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote,	},
+	{"!quote", 		PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote,	},
 	{"!quotenum", 	PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote_find,	},
 	{"!quotedel", 	PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote_del,	},
 	{"!calc", 		PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_calc,	},
