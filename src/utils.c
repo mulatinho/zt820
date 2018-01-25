@@ -426,17 +426,7 @@ int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
 			//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
 			if (!strncmp(zt_cmd[i].command, ptr, strlen(zt_cmd[i].command))) {
 				zt_cmd[i].func(ztinfo, data, string);
-				found++;
-			}
-		}
-	}
-
-	if (!found) {
-		for (int i = 0; i < zt_commands_sz; i++) {
-			//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", string, strlen(string), zt_cmd[i].command, strlen(zt_cmd[i].command));
-			if (strstr(string, zt_cmd[i].command)) {
-				zt_cmd[i].func(ztinfo, data, string);
-				found++;
+				found++; break;
 			}
 		}
 	}
