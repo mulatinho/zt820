@@ -362,8 +362,8 @@ int zt_cmd_pong(zt_info *ztinfo, zt_data *data, char *string)
 void zt_get_data(zt_data *data, const char *buffer)
 {
     zt_data payload = {
-        .id = 0, .nick = {0},
-        .host = {0}, .command = {0}, .argument = {0}, .message = {0}
+        .id = 0, .nick = {0}, .host = {0}, 
+	.irccmd = {0}, .argument = {0}, .message = {0}, .command = {0}
     };
     int dots = 0, sep = 0, n = 0;
 
@@ -378,13 +378,13 @@ void zt_get_data(zt_data *data, const char *buffer)
                     else { payload.nick[n++] = buffer[i]; }
                     break;
                 case 2: payload.host[n++] = buffer[i]; break;
-                case 3: payload.command[n++] = buffer[i]; break;
+                case 3: payload.irccmd[n++] = buffer[i]; break;
                 case 4: payload.argument[n++] = buffer[i]; break;
                 default: break;
             }
         }
 
-        if (':' == buffer[i]) { dots++; sep++; n = 0; }
+        if (':' == buffer[i] && sep != 2) { dots++; sep++; n = 0; }
     }
 
 	n = 0; sep = 0;
@@ -394,21 +394,31 @@ void zt_get_data(zt_data *data, const char *buffer)
 
     	for (size_t i = 0; i < strlen(buffer); i++) {
 			if (' ' == buffer[i] || ':' == buffer[i]) { sep++; n = 0; continue; }
-			if (!sep) { payload.command[n++] = buffer[i]; }
+			if (!sep) { payload.irccmd[n++] = buffer[i]; }
 			else { payload.host[n++] = buffer[i]; }
+		}
+	}
+    	
+	for (size_t y = 0; y < strlen(payload.message); y++) {
+		if (payload.message[y] == ' ') {
+			payload.command[y] = '\0';
+			break;
+		} else {
+			payload.command[y] = payload.message[y];
 		}
 	}
 
 	zt_clean_string(payload.nick);
 	zt_clean_string(payload.host);
-	zt_clean_string(payload.command);
+	zt_clean_string(payload.irccmd);
 	zt_clean_string(payload.argument);
 	zt_clean_string(payload.message);
+	zt_clean_string(payload.command);
 
 	*data = payload;
 #ifdef DEBUG
-    fprintf(stdout, "nick: '%s', host: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
-        payload.nick, payload.host, payload.command, payload.argument, payload.message);
+    fprintf(stdout, "nick: '%s', host: '%s', irccmd: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
+        payload.nick, payload.host, payload.irccmd, payload.command, payload.argument, payload.message);
 #endif
 }
 
@@ -418,16 +428,13 @@ int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
 
 	if (!string) { return 1; }
 
-	zt_clean_string(string);
+	zt_get_data(data, string);
 
-	const char *ptr = zt_get_cmd(string);
-	if (ptr) {
-		for (int i = 0; i < zt_commands_sz; i++) {
-			//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
-			if (!strncmp(zt_cmd[i].command, ptr, strlen(zt_cmd[i].command))) {
-				zt_cmd[i].func(ztinfo, data, string);
-				found++; break;
-			}
+	for (int i = 0; i < zt_commands_sz; i++) {
+		//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
+		if (!strncmp(zt_cmd[i].command, data->command, strlen(zt_cmd[i].command))) {
+			zt_cmd[i].func(ztinfo, data, string);
+			found++; break;
 		}
 	}
 

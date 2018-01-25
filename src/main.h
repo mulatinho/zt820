@@ -102,6 +102,8 @@ typedef struct {
 
     char host[BUF_MED];
 
+    char irccmd[BUF_MIN];
+
     char command[BUF_MIN];
 
     char argument[BUF_MED];
