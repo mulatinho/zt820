@@ -76,29 +76,47 @@ char *zt_get_cmd(char *buffer)
 
 char *zt_get_args(char *buffer)
 {
-	char *line = NULL;
-    char *res  = NULL;
+	char *string = strchr(buffer, ' ');
 
-	if ((line = (char*)mlt_strkey(buffer, 2, ':'))) {
-		char *res  = strchr(line, ' ');
+	if (!string) { return NULL; }
+	string += 1;
 
-		if (!res)
-			return NULL;
-		else
-			return res + 1;
+	{
+		short n = 0, tot = strlen(string);
+		char instring[tot],
+			cmd[BUF_MED] = {0},
+			buf[BUF_MAX] = {0};
+
+		if (!tot) { return NULL; }
+		for (short i = 0; i < tot; i++) {
+			if (*(string+i) == ' ') { break; }
+			else { instring[n++] = *(string+i); }
+		}
+		instring[n] = '\0';
+
+		return strdup(instring);
 	}
 
 	return NULL;
+	// char *line = NULL;
+    // char *res  = NULL;
+    //
+	// if ((line = (char*)mlt_strkey(buffer, 2, ':'))) {
+	// 	char *res  = strchr(line, ' ');
+    //
+	// 	if (!res)
+	// 		return NULL;
+	// 	else
+	// 		return res + 1;
+	// }
+    //
+	// return NULL;
 }
 
 int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data, char* string)
 {
 	char buf[512] = {0};
 	char cmd[] = "curl -L pastebin.com/archives 2>&1 | egrep -o '/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sort -u | while read id; do sleep 0.100; curl -s www.pastebin.com/raw$id | egrep -i '(0day|pass|hack|rip|:.*:.*:|leak|.wn.d |torrent|dump|.*@.*[A-Za-z_.]{2} .{6})|^.*.{6}:.*.{6}$)' >/dev/null 2>&1 ; res=$?; [ $res -eq 0 ] && eval echo -n ',www.pastebin.com/raw$id'; done";
-
-	if (!string) {
-		return 1;
-	}
 
 	srand(time(NULL));
 	if (( (rand() % 1000) + 1 ) > 985) {
@@ -121,13 +139,13 @@ int zt_cmd_google(zt_info *ztinfo, zt_data *data, char *string)
 
 	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :are you kidding with me mothafuka?\r\n", data->argument);
 
-	if (!string) {
+	if (!strlen(data->message)) {
 		fprintf(stdout, "no such string");
 		write(ztinfo->socket, buf, strlen(buf));
 		return -1;
 	}
 
-	args = zt_get_args(string);
+	args = zt_get_args(data->message);
 	if (!args) {
 		fprintf(stdout, "no such args");
 		write(ztinfo->socket, buf, strlen(buf));
@@ -154,24 +172,33 @@ int zt_cmd_google(zt_info *ztinfo, zt_data *data, char *string)
 	memset(buf, '\0', sizeof(buf));
 	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\r\n", data->argument, output);
 	write(ztinfo->socket, buf, strlen(buf));
+	free(args);
 
 	return 0;
 }
 
 int zt_cmd_calc(zt_info *ztinfo, zt_data *data, char *string)
 {
-	char buf[BUF_MAX];
-	char *q = (char*)mlt_strkey(string, 2, ':');
+	char *args = NULL;
+	char cmd[BUF_MAX] = {0},
+		buf[BUF_MAX] = {0};
 
-	if (!q)
-		return -1;
+	fprintf(stdout, "-==> '%s'\n", data->message);
+	args = zt_get_args(data->message);
+	if (!args) { return 1; }
 
-	char cmd[BUF_MED];
-	snprintf(cmd, sizeof(cmd)-1, "echo \"scale=2;%s\" | bc", strchr(q, ' ') + 1);
-	char *output = zt_get_output(cmd);
-	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :'%s' -> %s.\r\n", data->argument, strchr(q, ' ') + 1, output);
+	fprintf(stdout, "-==> '%s'\n", args);
+	snprintf(cmd, sizeof(cmd)-1, "echo \"scale=2;%s\" | bc", args);
+	fprintf(stdout, "-==> '%s'\n", cmd);
 
-	write(ztinfo->socket, buf, strlen(buf));
+	{
+		char *output = zt_get_output(cmd);
+		snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :'%s' -> %s.\r\n", data->argument, args, output);
+		fprintf(stdout, "-==> '%s'\n", buf);
+
+		write(ztinfo->socket, buf, strlen(buf));
+	}
+	free(args);
 
 	return 0;
 }
@@ -183,13 +210,13 @@ int zt_cmd_weather(zt_info *ztinfo, zt_data *data, char *string)
 
 	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :no such city in records ;)\r\n", data->argument);
 
-	if (!string) {
+	if (!strlen(data->message)) {
 		fprintf(stdout, "no such string");
 		write(ztinfo->socket, buf, strlen(buf));
 		return -1;
 	}
 
-	args = zt_get_args(string);
+	args = zt_get_args(data->message);
 	if (!args) {
 		fprintf(stdout, "no such args");
 		write(ztinfo->socket, buf, strlen(buf));
@@ -213,6 +240,7 @@ int zt_cmd_weather(zt_info *ztinfo, zt_data *data, char *string)
 	memset(buf, '\0', sizeof(buf));
 	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\r\n", data->argument, output);
 	write(ztinfo->socket, buf, strlen(buf));
+	free(args);
 
 	return 0;
 }
@@ -224,7 +252,7 @@ int zt_cmd_quote_find(zt_info *ztinfo, zt_data *data, char *string)
 	char *strnum = NULL;
 	int num, loop;
 
-	strnum = zt_get_args(string);
+	strnum = zt_get_args(data->message);
 	if (!strnum) {
 		snprintf(response, sizeof(response)-1, "PRIVMSG %s :gimme a real one :>\r\n", data->argument);
 		write(ztinfo->socket, response, strlen(response));
@@ -250,6 +278,7 @@ int zt_cmd_quote_find(zt_info *ztinfo, zt_data *data, char *string)
 		snprintf(response, sizeof(response)-1, "PRIVMSG %s :gimme a real one :|\r\n", data->argument);
 
 	write(ztinfo->socket, response, strlen(response));
+	free(strnum);
 
 	return 0;
 }
@@ -260,7 +289,7 @@ int zt_cmd_quote_del(zt_info *ztinfo, zt_data *data, char *string)
 	char *strnum = NULL;
 	int num, loop;
 
-	strnum = zt_get_args(string);
+	strnum = zt_get_args(data->message);
 	if (!strnum) {
 		snprintf(response, sizeof(response)-1, "PRIVMSG %s :gimme a real one :>\r\n", data->argument);
 		write(ztinfo->socket, response, strlen(response));
@@ -291,6 +320,7 @@ int zt_cmd_quote_del(zt_info *ztinfo, zt_data *data, char *string)
 
 	snprintf(response, sizeof(response)-1, "PRIVMSG %s :this quote is revogated!\r\n", data->argument);
 	write(ztinfo->socket, response, strlen(response));
+	free(strnum);
 
 	return 0;
 }
@@ -298,12 +328,11 @@ int zt_cmd_quote_del(zt_info *ztinfo, zt_data *data, char *string)
 int zt_cmd_quote(zt_info *ztinfo, zt_data *data, char *string)
 {
 	char buf[BUF_MAX];
-	char *q = (char*)mlt_strkey(string, 2, ':');
 
-	fprintf(stdout, "string '%s'\n", q);
-	if (strlen(q) > 8) {
+	fprintf(stdout, "string '%s'\n", data->message);
+	if (strlen(data->message) > 8) {
 		FILE *fp = fopen("./data/quotes.txt", "a");
-		char *quote = strchr(q, ' ');
+		char *quote = strchr(data->message, ' ');
 		if (quote) {
 			fprintf(fp, "%s\n", quote + 1);
 			fclose(fp);
@@ -361,10 +390,10 @@ int zt_cmd_pong(zt_info *ztinfo, zt_data *data, char *string)
 
 void zt_get_data(zt_data *data, const char *buffer)
 {
-    zt_data payload = {
-        .id = 0, .nick = {0}, .host = {0}, 
-	.irccmd = {0}, .argument = {0}, .message = {0}, .command = {0}
-    };
+	zt_data payload = {
+		.id = 0, .nick = {0}, .host = {0},
+		.irccmd = {0}, .argument = {0}, .message = {0}, .command = {0}
+	};
     int dots = 0, sep = 0, n = 0;
 
     for (size_t i = 0; i < strlen(buffer); i++) {
@@ -384,7 +413,7 @@ void zt_get_data(zt_data *data, const char *buffer)
             }
         }
 
-        if (':' == buffer[i] && sep != 2) { dots++; sep++; n = 0; }
+        if (':' == buffer[i] && sep != 2 && dots != 2) { dots++; sep++; n = 0; }
     }
 
 	n = 0; sep = 0;
@@ -398,7 +427,7 @@ void zt_get_data(zt_data *data, const char *buffer)
 			else { payload.host[n++] = buffer[i]; }
 		}
 	}
-    	
+
 	for (size_t y = 0; y < strlen(payload.message); y++) {
 		if (payload.message[y] == ' ') {
 			payload.command[y] = '\0';
@@ -429,6 +458,8 @@ int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
 	if (!string) { return 1; }
 
 	zt_get_data(data, string);
+    fprintf(stdout, "nick: '%s', host: '%s', irccmd: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
+        data->nick, data->host, data->irccmd, data->command, data->argument, data->message);
 
 	for (int i = 0; i < zt_commands_sz; i++) {
 		//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
