@@ -13,11 +13,17 @@ int zt_feeling_of_day(void)
 	return 0;
 }
 
+int zt_change_columns(zt_info* ztinfo, zt_data* data, char* buffer)
+{
+	char *columns = { ":nick", ":channel" };
+	/* todo in future */
+}
+
 int zt_feelings_talk_with_me(zt_info* ztinfo, zt_data* data)
 {
 	char *talk[] = {
-		"lets fuckin crazy!", "hey man, how are you doing?", 
-		"are you talkin with me?", "hey <NICK>"
+		"lets fuckin crazy!", "hey man, how are you doing?", "don't call me that",
+		"are you talkin with me?", "hey :nick", "i was thinking in you.."
 	};
 	int talk_sz = sizeof(talk) / sizeof(talk[0]);
 

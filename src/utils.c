@@ -11,6 +11,7 @@ char *zt_get_output(char *cmd)
 
 	memset(ret, 0, sizeof(buf));
 
+	fprintf(stdout, "-==> %s\n", cmd);
 	fp = popen(cmd, "r");
 	while (fgets(buf, sizeof(buf)-1, fp)) {
 		totalbytez+=strlen(buf);
@@ -113,7 +114,7 @@ char *zt_get_args(char *buffer)
 	// return NULL;
 }
 
-int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data, char* string)
+int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data)
 {
 	char buf[512] = {0};
 	char cmd[] = "curl -L pastebin.com/archives 2>&1 | egrep -o '/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sort -u | while read id; do sleep 0.100; curl -s www.pastebin.com/raw$id | egrep -i '(0day|pass|hack|rip|:.*:.*:|leak|.wn.d |torrent|dump|.*@.*[A-Za-z_.]{2} .{6})|^.*.{6}:.*.{6}$)' >/dev/null 2>&1 ; res=$?; [ $res -eq 0 ] && eval echo -n ',www.pastebin.com/raw$id'; done";
@@ -132,7 +133,7 @@ int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data, char* string)
 	return 0;
 }
 
-int zt_cmd_google(zt_info *ztinfo, zt_data *data, char *string)
+int zt_cmd_google(zt_info *ztinfo, zt_data *data)
 {
 	char buf[BUF_MAX] = {0}, cmd[BUF_MAX] = {0};
 	char* args = NULL, *output = NULL;
@@ -177,7 +178,7 @@ int zt_cmd_google(zt_info *ztinfo, zt_data *data, char *string)
 	return 0;
 }
 
-int zt_cmd_calc(zt_info *ztinfo, zt_data *data, char *string)
+int zt_cmd_calc(zt_info *ztinfo, zt_data *data)
 {
 	char *args = NULL;
 	char cmd[BUF_MAX] = {0},
@@ -203,7 +204,7 @@ int zt_cmd_calc(zt_info *ztinfo, zt_data *data, char *string)
 	return 0;
 }
 
-int zt_cmd_weather(zt_info *ztinfo, zt_data *data, char *string)
+int zt_cmd_weather(zt_info *ztinfo, zt_data *data)
 {
 	char buf[BUF_MAX] = {0}, cmd[BUF_MAX] = {0};
 	char* args = NULL, *output = NULL;
@@ -245,7 +246,7 @@ int zt_cmd_weather(zt_info *ztinfo, zt_data *data, char *string)
 	return 0;
 }
 
-int zt_cmd_quote_find(zt_info *ztinfo, zt_data *data, char *string)
+int zt_cmd_quote_find(zt_info *ztinfo, zt_data *data)
 {
 	FILE *fr, *fw;
 	char buf[4096] = {0}, response[256] = {0};
@@ -282,7 +283,7 @@ int zt_cmd_quote_find(zt_info *ztinfo, zt_data *data, char *string)
 
 	return 0;
 }
-int zt_cmd_quote_del(zt_info *ztinfo, zt_data *data, char *string)
+int zt_cmd_quote_del(zt_info *ztinfo, zt_data *data)
 {
 	FILE *fr, *fw;
 	char buf[4096] = {0}, response[256] = {0};
@@ -325,9 +326,9 @@ int zt_cmd_quote_del(zt_info *ztinfo, zt_data *data, char *string)
 	return 0;
 }
 
-int zt_cmd_quote(zt_info *ztinfo, zt_data *data, char *string)
+int zt_cmd_quote(zt_info *ztinfo, zt_data *data)
 {
-	char buf[BUF_MAX];
+	char buf[BUF_MAX] = {0};
 
 	fprintf(stdout, "string '%s'\n", data->message);
 	if (strlen(data->message) > 8) {
@@ -375,13 +376,12 @@ int zt_cmd_quote(zt_info *ztinfo, zt_data *data, char *string)
 	return 0;
 }
 
-int zt_cmd_pong(zt_info *ztinfo, zt_data *data, char *string)
+int zt_cmd_pong(zt_info *ztinfo, zt_data *data)
 {
 	char buf[BUF_MAX];
-	char *servname = (char*)mlt_strkey(string, 1, ' ');
 
-	snprintf(buf, sizeof(buf)-1, "PONG %s\r\n", servname);
-	fprintf(stdout, "%s:. server is pinging me, pong him back\n%s\n", string, buf);
+	snprintf(buf, sizeof(buf)-1, "PONG :%s\r\n", data->host);
+	fprintf(stdout, "%s:. server is pinging me, pong him back\n%s\n", data->host, buf);
 
 	write(ztinfo->socket, buf, strlen(buf));
 
@@ -453,24 +453,36 @@ void zt_get_data(zt_data *data, const char *buffer)
 
 int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
 {
-	int found = 0;
+	char *irclistcmds[] = {
+		"PRIVMSG", "JOIN", "PART", "QUIT", "MODE", "TOPIC", "NAMES", "LIST",
+		"INVITE", "KICK", "NOTICE", "MOTD", "VERSION", "STATS", "TIME", "PING", "PONG"
+	};
+
+	int valid = 0, found = 0;
 
 	if (!string) { return 1; }
 
-	zt_get_data(data, string);
+	//zt_get_data(data, string);
     fprintf(stdout, "nick: '%s', host: '%s', irccmd: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
         data->nick, data->host, data->irccmd, data->command, data->argument, data->message);
 
-	for (int i = 0; i < zt_commands_sz; i++) {
-		//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
-		if (!strncmp(zt_cmd[i].command, data->command, strlen(zt_cmd[i].command))) {
-			zt_cmd[i].func(ztinfo, data, string);
-			found++; break;
+	for (int v = 0; v < sizeof(irclistcmds) / sizeof(irclistcmds[0]); v++) {
+		if (!strncmp(data->irccmd, irclistcmds[v], strlen(irclistcmds[v]))) { valid++; }
+	}
+
+	if (valid) {
+		for (int i = 0; i < zt_commands_sz; i++) {
+			//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
+			if (!strncmp(zt_cmd[i].command, data->command, strlen(data->command))) {
+				fprintf(stdout, "ACTION: %s -> %s\n", zt_cmd[i].command, data->command);
+				zt_cmd[i].func(ztinfo, data);
+				found++; break;
+			}
 		}
 	}
 
 	if (!found)
-		zt_cmd_pastebin(ztinfo, data, string);
+		zt_cmd_pastebin(ztinfo, data);
 
 	usleep(500);
 
