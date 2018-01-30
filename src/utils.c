@@ -125,7 +125,7 @@ int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data)
 		fprintf(stdout, "hey pastebin!");
 
 		if (output) {
-			snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :time for w4r3z -> %s\r\n", data->argument, output);
+			snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :time for w4r3z -> %s\r\n", ztinfo->channels[0], output);
 			write(ztinfo->socket, buf, strlen(buf));
 		}
 	}

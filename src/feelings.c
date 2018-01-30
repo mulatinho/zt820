@@ -31,7 +31,7 @@ int zt_feelings_talk_with_me(zt_info* ztinfo, zt_data* data)
 
 	char buf[BUF_MED];
 
-	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\n", data->argument, talk[choice]);
+	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\n", ztinfo->channels[0], talk[choice]);
 	write(ztinfo->socket, buf, strlen(buf));
 
 	return 0;
@@ -62,7 +62,7 @@ int zt_feelings_talk(zt_info *ztinfo, zt_data *data)
 	char buf[BUF_MED];
 
 	fprintf(stdout, ":. i wanna talk! -> '%s'\n", happy_talk[choice]);
-	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\n", data->argument, happy_talk[choice]);
+	snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :%s\n", ztinfo->channels[0], happy_talk[choice]);
 	write(ztinfo->socket, buf, strlen(buf));
 
 	return 0;
