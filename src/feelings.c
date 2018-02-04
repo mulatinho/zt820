@@ -112,7 +112,7 @@ int zt_feelings_event(zt_info *ztinfo, zt_data *data)
 		// LAST THING BEFORE JOIN, PART, TALK WITH HIM
 		if (!zt_feelings_wannatalk(985))
 			zt_feelings_talk(ztinfo, data);
-		else if (strcasestr(data->message, "zt820"))
+		else if (strcasestr(data->message, ztinfo->nick) && !strncmp(data->irccmd, "PRIVMSG", 7)) 
 			zt_feelings_talk_with_me(ztinfo, data);
 
 	}
