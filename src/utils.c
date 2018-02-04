@@ -461,7 +461,6 @@ int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
 
 	if (!string) { return 1; }
 
-	valid++;
 	for (int v = 0; v < sizeof(irclistcmds) / sizeof(irclistcmds[0]); v++) {
 		if (!strncmp(data->irccmd, irclistcmds[v], strlen(irclistcmds[v]))) { valid++; }
 	}
