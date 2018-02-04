@@ -461,16 +461,20 @@ int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
 
 	if (!string) { return 1; }
 
+	valid++;
 	for (int v = 0; v < sizeof(irclistcmds) / sizeof(irclistcmds[0]); v++) {
 		if (!strncmp(data->irccmd, irclistcmds[v], strlen(irclistcmds[v]))) { valid++; }
 	}
 
-	if (valid && strlen(data->command)>0) {
+	if (valid) {
 		fprintf(stdout, "nick: '%s', host: '%s', irccmd: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
 			data->nick, data->host, data->irccmd, data->command, data->argument, data->message);
 
 		for (int i = 0; i < zt_commands_sz; i++) {
-			if (!strncmp(zt_cmd[i].command, data->command, strlen(data->command))) {
+			if (!strncmp(zt_cmd[i].command, data->command, strlen(zt_cmd[i].command))) {
+				zt_cmd[i].func(ztinfo, data);
+				found++; break;
+			} else if (!strncmp(zt_cmd[i].command, data->irccmd, strlen(zt_cmd[i].command))) {
 				zt_cmd[i].func(ztinfo, data);
 				found++; break;
 			}

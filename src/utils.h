@@ -41,7 +41,7 @@ static zt_commands_t zt_cmd[] = {
 	{"!quotedel", 	PRIVMSG, 	GROUP_PRIVATE,	&zt_cmd_quote_del,	},
 	{"!calc", 		PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_calc,	},
 	{"!weather", 	PRIVMSG, 	GROUP_PUBLIC,	&zt_cmd_weather,	},
-	{"PING :", 		PING, 		GROUP_PUBLIC,	&zt_cmd_pong,	}
+	{"PING", 		PING, 		GROUP_PUBLIC,	&zt_cmd_pong,	}
 };
 static int zt_commands_sz = sizeof(zt_cmd) / sizeof(zt_cmd[0]);
 
