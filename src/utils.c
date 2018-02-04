@@ -453,28 +453,24 @@ void zt_get_data(zt_data *data, const char *buffer)
 
 int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
 {
+	int valid = 0, found = 0;
 	char *irclistcmds[] = {
 		"PRIVMSG", "JOIN", "PART", "QUIT", "MODE", "TOPIC", "NAMES", "LIST",
 		"INVITE", "KICK", "NOTICE", "MOTD", "VERSION", "STATS", "TIME", "PING", "PONG"
 	};
 
-	int valid = 0, found = 0;
-
 	if (!string) { return 1; }
-
-	//zt_get_data(data, string);
-    fprintf(stdout, "nick: '%s', host: '%s', irccmd: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
-        data->nick, data->host, data->irccmd, data->command, data->argument, data->message);
 
 	for (int v = 0; v < sizeof(irclistcmds) / sizeof(irclistcmds[0]); v++) {
 		if (!strncmp(data->irccmd, irclistcmds[v], strlen(irclistcmds[v]))) { valid++; }
 	}
 
-	if (valid) {
+	if (valid && strlen(data->command)>0) {
+		fprintf(stdout, "nick: '%s', host: '%s', irccmd: '%s'\ncommand: '%s', argument: '%s', message: '%s'\n",
+			data->nick, data->host, data->irccmd, data->command, data->argument, data->message);
+
 		for (int i = 0; i < zt_commands_sz; i++) {
-			//DEBUG fprintf(stdout, ". '%s' %d, '%s' %d\n", ptr, strlen(ptr), zt_cmd[i].command, strlen(zt_cmd[i].command));
 			if (!strncmp(zt_cmd[i].command, data->command, strlen(data->command))) {
-				fprintf(stdout, "ACTION: %s -> %s\n", zt_cmd[i].command, data->command);
 				zt_cmd[i].func(ztinfo, data);
 				found++; break;
 			}
