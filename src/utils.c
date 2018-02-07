@@ -470,10 +470,12 @@ int zt_interpret(zt_info *ztinfo, zt_data *data, char *string)
 			data->nick, data->host, data->irccmd, data->command, data->argument, data->message);
 
 		for (int i = 0; i < zt_commands_sz; i++) {
-			if (!strncmp(zt_cmd[i].command, data->command, strlen(zt_cmd[i].command))) {
+			if (!strncmp(zt_cmd[i].command, data->command, strlen(zt_cmd[i].command))
+				&& !strncmp(zt_cmd[i].command, data->command, strlen(data->command))) {
 				zt_cmd[i].func(ztinfo, data);
 				found++; break;
-			} else if (!strncmp(zt_cmd[i].command, data->irccmd, strlen(zt_cmd[i].command))) {
+			} else if (!strncmp(zt_cmd[i].command, data->irccmd, strlen(zt_cmd[i].command))
+				&& !strncmp(zt_cmd[i].command, data->irccmd, strlen(data->irccmd))) {
 				zt_cmd[i].func(ztinfo, data);
 				found++; break;
 			}
