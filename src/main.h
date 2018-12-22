@@ -81,7 +81,7 @@ typedef struct
 
 	int feeling;
 
-    char host[BUF_MED];
+  char host[BUF_MED];
 
 	char bnc[BUF_MIN];
 
@@ -90,9 +90,12 @@ typedef struct
 	char username[BUF_MIN];
 
 	char channels[MAX_CHANNELS][BUF_MED];
+
 	char realname[BUF_MED];
 
 	char password[BUF_MIN];
+
+  char nickserv[BUF_MIN];
 } zt_info;
 
 typedef struct {

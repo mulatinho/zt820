@@ -85,6 +85,9 @@ int zt_read_conf(zt_info *ztinfo)
 				case CHANNELS:
 					memcpy(ztinfo->channels[0], value, BUF_MIN-1);
 					break;
+				case NICKSERV:
+					memcpy(ztinfo->nickserv, value, BUF_MIN-1);
+					break;
 				case PASSWORD:
 					memcpy(ztinfo->password, value, BUF_MIN-1);
 					break;
@@ -112,7 +115,7 @@ int zt_event_loop(zt_info *ztinfo, char *buffer)
 	zt_data *data = malloc(sizeof(zt_data));
 	zt_get_data(data, buffer);
 	zt_interpret(ztinfo, data, buffer);
-	
+
 	free(data);
 	return 0;
 }
@@ -205,7 +208,7 @@ int zt_create_server(zt_info *ztinfo)
 				}
 				if (strstr(buf, ":End of /MOTD")) {
 					sleep(1);
-					snprintf(sbuf, sizeof(sbuf), "MSG NickServ IDENTIFY %s\r\n", ztinfo->password);
+					snprintf(sbuf, sizeof(sbuf), "PRIVMSG NickServ IDENTIFY %s\r\n", ztinfo->nickserv);
 					write(serverpoll->fd, sbuf, strlen(sbuf));
 
 					snprintf(sbuf, sizeof(sbuf), "JOIN %s\r\n", ztinfo->channels[0]);
