@@ -3,7 +3,7 @@
 int zt_feelings_randnum(void)
 {
 	srand(time(NULL));
-	return (rand() % 1000) +1;
+	return (rand() % 1000) + 1;
 }
 
 int zt_feeling_of_day(void)
@@ -23,7 +23,8 @@ int zt_feelings_talk_with_me(zt_info* ztinfo, zt_data* data)
 {
 	char *talk[] = {
 		"lets fuckin crazy!", "hey man, how are you doing?", "don't call me that",
-		"are you talkin with me?", "hey :nick", "i was thinking in you.."
+		"are you talkin with me?", "hey :D", "i was thinking in you..",
+		"wait, im on phone.", "coffee time :)z", "no way!"
 	};
 	int talk_sz = sizeof(talk) / sizeof(talk[0]);
 
@@ -53,7 +54,8 @@ int zt_feelings_talk(zt_info *ztinfo, zt_data *data)
 	char *happy_talk[] = {
 		"woohoo!! new idea coming..", "i did it! yeah _\\,,/", "playing poker... :D",
 		"getting email", "are you sure?", "please, do that.",
-		"lets fuckin crazy!", "i am stoned.. .^.", "wtf", "rtfm", "lol"
+		"lets fuckin crazy!", "i am stoned.. .^.", "wtf", "rtfm", "lol",
+		"i just finished!", "so eazy look for things on internet nowdays..", "booh!"
 	};
 	int happy_talk_sz = sizeof(happy_talk) / sizeof(happy_talk[0]);
 
@@ -112,7 +114,7 @@ int zt_feelings_event(zt_info *ztinfo, zt_data *data)
 		// LAST THING BEFORE JOIN, PART, TALK WITH HIM
 		if (!zt_feelings_wannatalk(985))
 			zt_feelings_talk(ztinfo, data);
-		else if (strcasestr(data->message, ztinfo->nick) && !strncmp(data->irccmd, "PRIVMSG", 7)) 
+		else if (strcasestr(data->message, ztinfo->nick) && !strncmp(data->irccmd, "PRIVMSG", 7))
 			zt_feelings_talk_with_me(ztinfo, data);
 
 	}

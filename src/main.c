@@ -110,14 +110,10 @@ int zt_read_conf(zt_info *ztinfo)
 int zt_event_loop(zt_info *ztinfo, char *buffer)
 {
 	zt_data *data = malloc(sizeof(zt_data));
-
 	zt_get_data(data, buffer);
-
-	zt_feelings_event(ztinfo, data);
 	zt_interpret(ztinfo, data, buffer);
-
+	
 	free(data);
-
 	return 0;
 }
 
