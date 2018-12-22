@@ -38,3 +38,31 @@ $ sudo make install DESTDIR=/usr
 
 *EDIT CONFIGURATION FILE*
 $ vim data/config
+
+
+zt820 running on #linuxers channel at Freenode ;)
+
+11:09AM <crudo> hey zt820
+11:09AM <zt820> hey man, how are you doing?
+
+11:12AM <crudo> !calc (8750*12.78)-(8750*9.25)
+11:12AM <zt820> '(8750*12.78)-(8750*9.25)' -> 30887.50.
+11:13AM <crudo> !calc 2^64
+11:13AM <zt820> '2^64' -> 18446744073709551616.
+
+11:13AM <crudo> !quotes
+11:13AM <zt820> [#6] radios ao vivo - recife, www.tudoradio.com/player/radio/308
+11:09AM <crudo> !quotes
+11:09AM <zt820> [#99] Go to Heaven for the climate, Hell for the company. Mark Twain
+
+11:14AM <crudo> !weather Recife
+11:14AM <zt820> Weather report: Recife, Brazil   / Partly cloudy _ /.-. 29-32 °C _( ). ↖ 20 km/h
+11:14AM <crudo> !weather Koln
+11:14AM <zt820> Weather report: Kolno, Poland   / Partly cloudy _ /.-. 1-6 °C _( ). ↗ 30 km/h
+
+11:15AM <crudo> !google petr4+site%3Abr.investing.com
+11:15AM <zt820> br.investing.com/equities/petrobras-pn, br.investing.com/equities/petrobras-pn%3Fcid%3D48594,
+          br.investing.com/equities/petrobras-pn-advanced-chart, br.investing.com/equities/petrobras-pn-balance-sheet,
+          br.investing.com/equities/petrobras-pn-candlestick, br.investing.com/equities/petrobras-pn-chart,
+          br.investing.com/equities/petrobras-pn-chart%3Fcid%3D48594, br.investing.com/equities/petrobras-pn-commentary,
+          br.investing.com/equities/petrobras-pn-news, br.
