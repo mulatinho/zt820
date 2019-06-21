@@ -117,7 +117,7 @@ char *zt_get_args(char *buffer)
 int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data)
 {
 	char buf[512] = {0};
-	char cmd[] = "curl -L pastebin.com/archives 2>&1 | egrep -o '/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sort -u | while read id; do sleep 0.100; curl -s www.pastebin.com/raw$id | egrep -i '(0day|pass|h.ck|rip|:.*:.*:|leak|.wn.d |torrent|dump|.*@.*[A-Za-z_.]{2} .{6}|^.*.{6}:.*.{6}$)' >/dev/null 2>&1 ; res=$?; [ $res -eq 0 ] && eval echo -n ' www.pastebin.com/raw$id'; done";
+	char cmd[] = "curl -L pastebin.com/archives 2>&1 | egrep -o '/[A-Za-z0-9]{8}' | sed -n '/[A-Z]/p' | sort -u | while read id; do sleep 0.100; curl -s www.pastebin.com/raw$id | egrep -i '(0day|pass|:.*:.*:|leak|torrent|dump|.*@.*[A-Za-z_.]{2} .{6}|^.*.{6}:.*.{6}$)' >/dev/null 2>&1 ; res=$?; [ $res -eq 0 ] && eval echo -n ' www.pastebin.com/raw$id '; done";
 
 	srand(time(NULL));
 	if (( (rand() % 1000) + 1 ) > 985) {
@@ -127,6 +127,8 @@ int zt_cmd_pastebin(zt_info *ztinfo, zt_data *data)
 		if (output) {
 			snprintf(buf, sizeof(buf)-1, "PRIVMSG %s :time for w4r3z -> %s\r\n", ztinfo->channels[0], output);
 			write(ztinfo->socket, buf, strlen(buf));
+
+			free((void*)output);
 		}
 	}
 
@@ -461,7 +463,7 @@ int zt_interpret(zt_info *ztinfo, zt_data *data, char *buffer)
 
 	if (!buffer) { return 1; }
 
-	for (int v = 0; v < sizeof(irclistcmds) / sizeof(irclistcmds[0]); v++) {
+	for (ul64 v = 0; v < sizeof(irclistcmds) / sizeof(irclistcmds[0]); v++) {
 		if (!strncmp(data->irccmd, irclistcmds[v], strlen(irclistcmds[v]))) { valid++; }
 	}
 
