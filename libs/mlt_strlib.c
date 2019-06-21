@@ -74,7 +74,7 @@ const char **mlt_split(char *buffer, char delim)
 
 	size   = mlt_count(buffer, delim);
 	if (!size)
-		return (char**)NULL;
+		return (const char**)NULL;
 
 	char **result = calloc(size * 256, sizeof(char)); 
 	loop = 0;
@@ -90,7 +90,7 @@ const char **mlt_split(char *buffer, char delim)
 		free(p);
 	}
 
-	return (const char *)result;
+	return (const char **)result;
 }
 
 const char *mlt_substr(char *buffer, int left, int right)
