@@ -114,6 +114,8 @@ typedef struct {
     char message[BUF_MAX];
 } zt_data;
 
+typedef unsigned long int ul64;
+
 char*	mlt_strkey			(char *, int, char);
 void 	mlt_strupper		(char *);
 

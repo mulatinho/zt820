@@ -15,7 +15,8 @@ int zt_feeling_of_day(void)
 
 int zt_change_columns(zt_info* ztinfo, zt_data* data, char* buffer)
 {
-	char *columns = { ":nick", ":channel" };
+	const char *columns[] = { ":nick", ":channel", NULL };
+	return 0;
 	/* todo in future */
 }
 
